@@ -114,9 +114,9 @@ Follow the **mandatory task startup process** for project tasks:
 
 4. **Read project guidelines**
    - Review `.github/instructions/rules.instructions.md`
-   - Follow code quality standards (dart analyze, dart format)
-   - Follow linting rules (const, final, no print statements)
-   - Remember logging standards (MVP-XXX prefix)
+   - Follow code quality standards (ESLint, Prettier)
+   - Follow linting rules (TypeScript strict mode, no console.log in production)
+   - Remember logging standards (MVP-XXX prefix for development)
 
 5. **Create todo list**
    - Break down task into actionable steps
@@ -220,20 +220,21 @@ README.md contains domain overview and task index:
 ## Development Standards
 
 **Code Quality:**
-- Run `dart analyze` before committing
-- Run `dart format .` for consistent formatting
-- Use const constructors where possible
-- Mark fields as final if never reassigned
-- Remove all print() statements (use logging framework)
+- Run `npm run lint` before committing
+- Run `npm run format` for consistent formatting with Prettier
+- Use TypeScript strict mode (no `any` types without justification)
+- Mark variables as `const` if never reassigned
+- Remove all `console.log()` statements (use proper logging in production)
 
 **Logging (if needed):**
 - Prefix all logs with task ID: `MVP-XXX-INFO:`, `MVP-XXX-ERROR:`
 - Remove debug logs before committing
+- Use environment-based logging (only in development)
 
 **Testing:**
-- Write tests for business logic
-- Run `flutter test` before completion
-- Test on iOS and Android if UI-related
+- Write tests for business logic (Vitest)
+- Run `npm test` before completion
+- Test component rendering with React Testing Library
 
 ## Git Workflow
 
@@ -257,6 +258,8 @@ git pull origin dev  # Ensure latest dev changes
 git checkout -b feature/MVP-XXX_description
 
 # Regular development commits (in appropriate repo)
+npm run lint    # Ensure code quality
+npm run format  # Format code
 git add .
 git commit -m "Descriptive message"
 
@@ -277,9 +280,9 @@ git push origin main
 - Create feature branches with same name in both repos for consistency
 - **ALWAYS branch from `dev`**, never from `main`
 - Commit changes to the appropriate repository based on what you're modifying
-- Frontend changes → CodeValdFortex
-- Backend changes → CodeValdCortex
-- Keep branches synchronized if task spans both repositories
+- **Frontend changes (React, TypeScript, UI components) → CodeValdFortex**
+- **Backend changes (Go, APIs, database) → CodeValdCortex**
+- Keep branches synchronized if task spans both repositories (e.g., new API + UI)
 - Merge completed features to `dev` branch
 - `dev` → `main` merges happen at milestones (not per task)
 
