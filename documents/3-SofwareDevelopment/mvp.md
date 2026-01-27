@@ -54,10 +54,10 @@ git branch -d feature/MVP-XXX_description
 
 | Task ID | Title | Description | Status | Priority | Effort | Skills | Dependencies | Details |
 |---------|-------|-------------|--------|----------|--------|--------|--------------|---------|
-| MVP-FL-001 | Flutter Project Setup | Initialize Flutter project, configure for web/mobile/desktop platforms, setup environment management (.env), configure path structure, enable hot reload | 📋 Not Started | P0 | Low | Flutter, Dart | None | [mvp-details/MVP-FL-001.md](mvp-details/MVP-FL-001.md) |
-| MVP-FL-002 | Design System Setup | Configure Material Design theme, setup custom ThemeData, create base widget library (buttons, cards, inputs, dialogs, tables), establish design tokens | 📋 Not Started | P0 | Medium | Flutter, Material Design | MVP-FL-001 | [mvp-details/MVP-FL-002.md](mvp-details/MVP-FL-002.md) |
+| MVP-FL-001 | Flutter Project Setup | Initialize Flutter project per architecture spec (see: 2-SoftwareDesignAndArchitecture/flutter-designs/dashboard-design.md), configure for web/mobile/desktop platforms, setup MVVM structure, environment management (.env), configure path structure, enable hot reload | 📋 Not Started | P0 | Low | Flutter, Dart | None | [mvp-details/MVP-FL-001.md](mvp-details/MVP-FL-001.md) |
+| MVP-FL-002 | Design System Setup | Configure Material Design theme per design patterns (see: 2-SoftwareDesignAndArchitecture/flutter-designs/design-patterns.md), setup custom ThemeData with light/dark modes, create base widget library (StatCard, MetricCard, ChartCard, DataListCard per architecture), establish design tokens and breakpoints | 📋 Not Started | P0 | Medium | Flutter, Material Design | MVP-FL-001 | [mvp-details/MVP-FL-002.md](mvp-details/MVP-FL-002.md) |
 | MVP-FL-003 | Routing & Navigation | Implement go_router, define route structure, create navigation widgets (AppBar, Drawer, breadcrumbs), route guards, error page | 📋 Not Started | P0 | Medium | go_router, Dart | MVP-FL-002 | [mvp-details/MVP-FL-003.md](mvp-details/MVP-FL-003.md) |
-| MVP-FL-004 | State Management Architecture | Setup Riverpod/Bloc state management, configure providers/blocs, create base state patterns, implement dev tools, establish state organization conventions | 📋 Not Started | P0 | Medium | Riverpod/Bloc, Dart | MVP-FL-003 | [mvp-details/MVP-FL-004.md](mvp-details/MVP-FL-004.md) |
+| MVP-FL-004 | State Management Architecture | Implement MVVM pattern with Riverpod/Provider (see: dashboard-design.md architecture), setup ViewModels (DashboardViewModel, StatsViewModel), configure providers, create base state patterns, implement dev tools, establish state organization conventions per file structure spec | 📋 Not Started | P0 | Medium | Riverpod/Bloc, Dart, MVVM | MVP-FL-003 | [mvp-details/MVP-FL-004.md](mvp-details/MVP-FL-004.md) |
 | MVP-FL-005 | API Client Layer | Create Dio instance with interceptors, error handling, request/response transformers, authentication token management, API service factory pattern | 📋 Not Started | P0 | Medium | Dio, Dart, REST APIs | MVP-FL-004 | [mvp-details/MVP-FL-005.md](mvp-details/MVP-FL-005.md) |
 
 ---
@@ -71,6 +71,8 @@ git branch -d feature/MVP-XXX_description
 | MVP-FL-006 | Work Items State Management | Create Riverpod providers/Bloc for work items CRUD operations. Implement filtering, pagination state, error handling, optimistic updates | 📋 Not Started | P0 | Medium | Riverpod/Bloc, Dart | MVP-FL-005 | [mvp-details/MVP-FL-006.md](mvp-details/MVP-FL-006.md) |
 | MVP-FL-007 | Work Items Widgets | Build Flutter widgets using Material Design: WorkItemList, WorkItemCard, WorkItemForm, WorkItemFilters, WorkItemDetail. Implement CRUD operations, form validation, loading states | 📋 Not Started | P0 | High | Flutter, Dart, Material Design | MVP-FL-006 | [mvp-details/MVP-FL-007.md](mvp-details/MVP-FL-007.md) |
 | MVP-FL-008 | Work Items Screens & Integration | Create list screen with pagination/filtering, detail screen with edit capability, create/edit dialogs, integrate with state management, implement real-time updates | 📋 Not Started | P0 | High | Flutter, Riverpod/Bloc, Dart | MVP-FL-007 | [mvp-details/MVP-FL-008.md](mvp-details/MVP-FL-008.md) |
+| MVP-FL-008A | Dashboard Layout Implementation | Implement responsive dashboard layout per architecture (see: dashboard-design.md), create ResponsiveLayout widget with mobile/tablet/desktop breakpoints, build DashboardScreen with AppBar/Drawer/Body structure, implement breadcrumb navigation | 📋 Not Started | P0 | High | Flutter, Responsive Design | MVP-FL-008 | [mvp-details/MVP-FL-008A.md](mvp-details/MVP-FL-008A.md) |
+| MVP-FL-008B | Dashboard Widgets Library | Build dashboard widget components: StatCard, MetricCard with trend indicators, ChartCard container, DataListCard, TaskChecklist widget (per design-patterns.md), implement responsive grid layouts | 📋 Not Started | P0 | High | Flutter, Material Design | MVP-FL-008A | [mvp-details/MVP-FL-008B.md](mvp-details/MVP-FL-008B.md) |
 
 ---
 
@@ -92,9 +94,9 @@ git branch -d feature/MVP-XXX_description
 
 | Task ID | Title | Description | Status | Priority | Effort | Skills | Dependencies | Details |
 |---------|-------|-------------|--------|----------|--------|--------|--------------|---------|
-| MVP-FL-012 | Agency Designer - Overview Section | Build agency overview screen: name, description, goals display, metadata panel, agency stats dashboard, quick actions menu | 📋 Not Started | P1 | Medium | Flutter, Dart, Material | MVP-FL-008 | [mvp-details/MVP-FL-012.md](mvp-details/MVP-FL-012.md) |
+| MVP-FL-012 | Agency Designer - Overview Section | Build agency overview screen using dashboard patterns: name, description, goals display, metadata panel, agency stats dashboard with MetricCards (see: design-patterns.md StatCard), quick actions menu | 📋 Not Started | P1 | Medium | Flutter, Dart, Material | MVP-FL-008B | [mvp-details/MVP-FL-012.md](mvp-details/MVP-FL-012.md) |
 | MVP-FL-013 | Agency Designer - Roles & Teams | Create role management interface, team composition builder, RACI matrix editor, role assignment UI, permissions visualization | 📋 Not Started | P1 | High | Flutter, Dart, Complex Forms | MVP-FL-012 | [mvp-details/MVP-FL-013.md](mvp-details/MVP-FL-013.md) |
-| MVP-FL-014 | Agency Designer - Configuration Panel | Build agency settings screen: token budgets UI, rate limits configuration, resource quotas, AI model selection, cost control dashboard | 📋 Not Started | P1 | High | Flutter, Dart, Charts (fl_chart) | MVP-FL-013 | [mvp-details/MVP-FL-014.md](mvp-details/MVP-FL-014.md) |
+| MVP-FL-014 | Agency Designer - Configuration Panel | Build agency settings screen: token budgets UI, rate limits configuration, resource quotas, AI model selection, cost control dashboard with fl_chart (see: dashboard-design.md chart dependencies) | 📋 Not Started | P1 | High | Flutter, Dart, fl_chart | MVP-FL-013 | [mvp-details/MVP-FL-014.md](mvp-details/MVP-FL-014.md) |
 | MVP-FL-015 | Agency Export Functionality | Implement export UI with format selection (PDF/Markdown/JSON), template chooser, custom branding options, download manager, export history | 📋 Not Started | P1 | Medium | Flutter, File APIs | MVP-FL-014 | [mvp-details/MVP-FL-015.md](mvp-details/MVP-FL-015.md) |
 | MVP-FL-016 | AI-Powered Agency Creator UI | Build conversational AI interface for agency creation, chat-based flow, selective generation toggles, progress tracking, batch generation controls | 📋 Not Started | P1 | High | Flutter, Chat UI, AI Integration | MVP-FL-015 | [mvp-details/MVP-FL-016.md](mvp-details/MVP-FL-016.md) |
 
@@ -120,7 +122,7 @@ git branch -d feature/MVP-XXX_description
 | Task ID | Title | Description | Status | Priority | Effort | Skills | Dependencies | Details |
 |---------|-------|-------------|--------|----------|--------|--------|--------------|---------|
 | MVP-FL-021 | Agent List & Monitoring View | Build agent directory with list/grid views, status indicators, health badges, filter by state/type/agency, search, sort, bulk actions | 📋 Not Started | P1 | Medium | Flutter, Dart, Tables | MVP-FL-011 | [mvp-details/MVP-FL-021.md](mvp-details/MVP-FL-021.md) |
-| MVP-FL-022 | Agent Detail Dashboard | Create comprehensive agent screen: status FSM visualization, health metrics, run history, logs viewer, configuration panel, control buttons (start/stop/restart) | 📋 Not Started | P1 | High | Flutter, Charts, Real-time Data | MVP-FL-021 | [mvp-details/MVP-FL-022.md](mvp-details/MVP-FL-022.md) |
+| MVP-FL-022 | Agent Detail Dashboard | Create comprehensive agent screen using dashboard layout patterns: status FSM visualization, health metrics with ChartCard widgets, run history DataTable, logs viewer, configuration panel, control buttons (start/stop/restart) | 📋 Not Started | P1 | High | Flutter, fl_chart, Real-time Data | MVP-FL-021 | [mvp-details/MVP-FL-022.md](mvp-details/MVP-FL-022.md) |
 | MVP-FL-023 | Agent Creation Wizard | Build multi-step wizard: agent type selection, configuration form, capability selection, policy assignment, template chooser, AI-assisted creation | 📋 Not Started | P1 | High | Flutter, Multi-step Forms | MVP-FL-022 | [mvp-details/MVP-FL-023.md](mvp-details/MVP-FL-023.md) |
 | MVP-FL-024 | Real-time Agent Monitoring | Implement WebSocket/Stream connection for live updates, real-time metrics charts, event stream viewer, alert notifications, performance graphs | 📋 Not Started | P1 | High | WebSockets, Charts, Flutter | MVP-FL-023 | [mvp-details/MVP-FL-024.md](mvp-details/MVP-FL-024.md) |
 
@@ -133,8 +135,8 @@ git branch -d feature/MVP-XXX_description
 | Task ID | Title | Description | Status | Priority | Effort | Skills | Dependencies | Details |
 |---------|-------|-------------|--------|----------|--------|--------|--------------|---------|
 | MVP-FL-025 | Property Subscription UI | Build property subscription manager: browse available properties, subscribe/unsubscribe, favorites list, notification preferences, filter configuration | 📋 Not Started | P1 | Medium | Flutter, Dart, Forms | MVP-FL-024 | [mvp-details/MVP-FL-025.md](mvp-details/MVP-FL-025.md) |
-| MVP-FL-026 | Real-time Map Visualization | Create interactive map widget: real-time location markers, agent tracking, geofence display, route visualization, heat maps, cluster view | 📋 Not Started | P1 | High | Flutter, google_maps_flutter | MVP-FL-025 | [mvp-details/MVP-FL-026.md](mvp-details/MVP-FL-026.md) |
-| MVP-FL-027 | Property Dashboard & Analytics | Build real-time property dashboard: metric cards, time-series charts, property history, comparison views, export data, custom widgets | 📋 Not Started | P1 | High | Flutter, fl_chart, Streams | MVP-FL-026 | [mvp-details/MVP-FL-027.md](mvp-details/MVP-FL-027.md) |
+| MVP-FL-026 | Real-time Map Visualization | Create interactive map widget per dashboard architecture: real-time location markers, agent tracking, geofence display, route visualization, heat maps, cluster view (using google_maps_flutter or flutter_map) | 📋 Not Started | P1 | High | Flutter, google_maps_flutter | MVP-FL-025 | [mvp-details/MVP-FL-026.md](mvp-details/MVP-FL-026.md) |
+| MVP-FL-027 | Property Dashboard & Analytics | Build real-time property dashboard using MetricCard/ChartCard patterns (see: design-patterns.md): metric cards with trend indicators, time-series charts with fl_chart, property history, comparison views, export data, custom widgets | 📋 Not Started | P1 | High | Flutter, fl_chart, Streams | MVP-FL-026 | [mvp-details/MVP-FL-027.md](mvp-details/MVP-FL-027.md) |
 
 ---
 
@@ -170,10 +172,10 @@ git branch -d feature/MVP-XXX_description
 
 | Task ID | Title | Description | Status | Priority | Effort | Skills | Dependencies | Details |
 |---------|-------|-------------|--------|----------|--------|--------|--------------|---------|
-| MVP-FL-036 | Dark Mode & Theming | Implement ThemeMode switcher, dark/light themes, custom theme builder, user theme preferences, theme persistence, platform-adaptive themes | 📋 Not Started | P2 | Medium | Flutter Theming, Material/Cupertino | MVP-FL-011 | [mvp-details/MVP-FL-036.md](mvp-details/MVP-FL-036.md) |
+| MVP-FL-036 | Dark Mode & Theming | Implement ThemeMode switcher per AppTheme spec (see: dashboard-design.md Theme Configuration), dark/light themes, custom theme builder, user theme preferences with provider, theme persistence, platform-adaptive themes | 📋 Not Started | P2 | Medium | Flutter Theming, Material/Cupertino | MVP-FL-011 | [mvp-details/MVP-FL-036.md](mvp-details/MVP-FL-036.md) |
 | MVP-FL-037 | Advanced Search & Filtering | Build global search widget, advanced filter builder, saved search queries, search suggestions, search history, faceted search | 📋 Not Started | P2 | High | Flutter, Search UX, State Mgmt | MVP-FL-036 | [mvp-details/MVP-FL-037.md](mvp-details/MVP-FL-037.md) |
 | MVP-FL-038 | Notification System | Create notification center, real-time notifications, notification preferences, push notifications (FCM), local notifications, notification history | 📋 Not Started | P2 | Medium | Flutter, FCM, local_notifications | MVP-FL-037 | [mvp-details/MVP-FL-038.md](mvp-details/MVP-FL-038.md) |
-| MVP-FL-039 | Platform-Adaptive Experience | Optimize layouts for mobile/tablet/desktop, touch/mouse interactions, platform-specific navigation, offline-first capabilities with local storage | 📋 Not Started | P2 | High | Responsive Flutter, Offline-first | MVP-FL-038 | [mvp-details/MVP-FL-039.md](mvp-details/MVP-FL-039.md) |
+| MVP-FL-039 | Platform-Adaptive Experience | Optimize layouts using ScreenBreakpoints (600/900/1200/1800px per architecture spec), mobile/tablet/desktop/wide layouts, touch/mouse interactions, platform-specific navigation (Drawer vs NavigationRail), offline-first capabilities with local storage | 📋 Not Started | P2 | High | Responsive Flutter, Offline-first | MVP-FL-038 | [mvp-details/MVP-FL-039.md](mvp-details/MVP-FL-039.md) |
 | MVP-FL-040 | Accessibility Enhancements | Semantics implementation, keyboard navigation, screen reader support (TalkBack/VoiceOver), focus management, accessibility testing | 📋 Not Started | P2 | Medium | Accessibility, Semantics | MVP-FL-039 | [mvp-details/MVP-FL-040.md](mvp-details/MVP-FL-040.md) |
 
 ---
@@ -186,7 +188,7 @@ git branch -d feature/MVP-XXX_description
 |---------|-------|-------------|--------|----------|--------|--------|--------------|---------|
 | MVP-FL-041 | A2A Protocol UI Integration | Build external agent discovery UI, agent card viewer, task delegation interface, A2A agent monitoring, trust score visualization | 📋 Not Started | P2 | High | Flutter, Dart, Complex Data | MVP-FL-024 | [mvp-details/MVP-FL-041.md](mvp-details/MVP-FL-041.md) |
 | MVP-FL-042 | Compliance Dashboard | Create compliance framework selector, policy visualization, compliance reports, audit trail viewer, violation alerts, remediation workflow | 📋 Not Started | P2 | High | Flutter, Compliance UX, Reports | MVP-FL-041 | [mvp-details/MVP-FL-042.md](mvp-details/MVP-FL-042.md) |
-| MVP-FL-043 | Advanced Analytics & Reporting | Build custom report builder, data visualization library, export to various formats, scheduled reports, dashboard templates, KPI tracking | 📋 Not Started | P2 | High | Flutter, fl_chart, Data Viz | MVP-FL-042 | [mvp-details/MVP-FL-043.md](mvp-details/MVP-FL-043.md) |
+| MVP-FL-043 | Advanced Analytics & Reporting | Build custom report builder using dashboard widget patterns, data visualization library with fl_chart (line, bar, area, pie, radar charts per architecture), export to various formats, scheduled reports, dashboard templates, KPI tracking with MetricCards | 📋 Not Started | P2 | High | Flutter, fl_chart, Data Viz | MVP-FL-042 | [mvp-details/MVP-FL-043.md](mvp-details/MVP-FL-043.md) |
 | MVP-FL-044 | Collaboration Features | Implement real-time collaborative editing, comments & mentions, activity feed, user presence indicators, team chat integration | 📋 Not Started | P2 | High | Flutter, Streams, CRDT | MVP-FL-043 | [mvp-details/MVP-FL-044.md](mvp-details/MVP-FL-044.md) |
 
 ---
@@ -208,9 +210,10 @@ _(None)_
 ### P0 (Blocking - Must Complete First)
 - **Foundation & Infrastructure**: 5 tasks (MVP-FL-001 through MVP-FL-005)
 - **Work Items PoC**: 3 tasks (MVP-FL-006 through MVP-FL-008)
+- **Dashboard Implementation**: 2 tasks (MVP-FL-008A, MVP-FL-008B)
 - **Authentication**: 3 tasks (MVP-FL-009 through MVP-FL-011)
 
-**Total P0**: 11 tasks
+**Total P0**: 13 tasks
 
 ### P1 (Critical - Core Features)
 - **Agency Management**: 5 tasks (MVP-FL-012 through MVP-FL-016)
@@ -228,7 +231,7 @@ _(None)_
 
 **Total P2**: 9 tasks
 
-**Grand Total Active Tasks**: 44 tasks
+**Grand Total Active Tasks**: 46 tasks
 
 ---
 
@@ -241,12 +244,14 @@ _(None)_
 4. MVP-FL-004 - State Management
 5. MVP-FL-005 - API Client Layer
 
-### Phase 2: Work Items PoC (Weeks 3-5)
+### Phase 2: Work Items PoC & Dashboard (Weeks 3-6)
 6. MVP-FL-006 - Work Items State Management
 7. MVP-FL-007 - Work Items Widgets
 8. MVP-FL-008 - Work Items Screens & Integration
+8A. MVP-FL-008A - Dashboard Layout Implementation (per architecture spec)
+8B. MVP-FL-008B - Dashboard Widgets Library (StatCard, MetricCard, ChartCard)
 
-### Phase 3: Authentication (Week 6)
+### Phase 3: Authentication (Week 7)
 9. MVP-FL-009 - Authentication State Management
 10. MVP-FL-010 - Login & Registration Screens
 11. MVP-FL-011 - Protected Routes & Permissions
@@ -268,12 +273,17 @@ _(None)_
 ---
 
 **Architecture Notes**:
+- **Design Architecture**: See `/documents/2-SoftwareDesignAndArchitecture/flutter-designs/` for comprehensive design specs
+  - `dashboard-design.md`: Complete dashboard architecture, MVVM pattern, component specs, file structure
+  - `design-patterns.md`: Reusable widget patterns (StatCard, DataTable, Charts, Navigation)
 - **Backend Integration**: All backend APIs provided by CodeValdCortex (Go + ArangoDB)
-- **Frontend Stack**: Flutter + Dart + Riverpod/Bloc + Material Design + Dio
+- **Frontend Stack**: Flutter + Dart + Riverpod/Provider (MVVM) + Material Design + Dio
 - **Platforms**: Web (primary), iOS, Android, Desktop (macOS, Windows, Linux)
+- **Responsive Breakpoints**: Mobile (<600px), Tablet (600-900px), Desktop (900-1200px), Wide (>1200px)
 - **Communication**: REST APIs with WebSocket/Stream support for real-time features
 - **Deployment**: Web (Docker + Nginx), Mobile (App Store/Play Store), Desktop (platform installers)
-- **State Management**: Riverpod/Bloc for state management, Dio for HTTP client
+- **State Management**: Riverpod/Provider with ViewModel pattern (DashboardViewModel, StatsViewModel, etc.)
+- **Required Packages**: provider/riverpod, fl_chart, flutter_svg, badges, responsive_framework, data_table_2
 - **Testing**: Flutter Test + Widget Tests + Integration Tests + Golden Tests
 
 **Note**: This document contains only active and pending tasks. All completed tasks are moved to `mvp_done.md` to maintain a clean, actionable backlog.
