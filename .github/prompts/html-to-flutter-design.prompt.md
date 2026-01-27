@@ -187,13 +187,15 @@ When analyzing HTML templates:
    - Tablet breakpoint (600-899px): Two columns, expanded UI
    - Desktop breakpoint (900-1199px): Multi-column, full features
    - Wide breakpoint (≥ 1200px): Maximum columns, spacious layout
-5. **Design for Modularity (500-Line Rule)**
+
+6. **Design for Modularity (500-Line Rule)**
    - Estimate widget complexity from HTML structure
    - Plan component splits BEFORE writing code
    - Identify natural boundaries (header, content, footer, actions)
    - Group related sub-widgets in feature folders
    - Document splitting strategy in widget specifications
-6. **Define Data Flow**
+
+7. **Define Data Flow**
    - User actions → ViewModel methods
    - API calls → Repository → ViewModel state
    - State changes → UI updates via notifyListeners

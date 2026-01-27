@@ -9,6 +9,11 @@
 - **High-Level Overview**: This file (`mvp.md`) provides task tables, priorities, dependencies, and brief descriptions
 - **Detailed Specifications**: Each task with detailed requirements is documented in `/documents/3-SofwareDevelopment/mvp-details/{TASK_ID}.md`
 - **Reference Pattern**: Tasks reference their detail files using the format `See: mvp-details/{TASK_ID}.md`
+- **Design Architecture**: Flutter design specifications are located in `/documents/2-SoftwareDesignAndArchitecture/flutter-designs/`
+  - `dashboard-design.md`: Complete dashboard architecture, MVVM pattern, widget specs, responsive layouts
+  - `design-patterns.md`: Reusable widget patterns (StatCard, MetricCard, ChartCard, DataTable)
+  - `sign-in-design.md`: Authentication UI specifications with dual login methods
+  - Tasks reference these design specs for implementation guidance
 
 ## Workflow Integration
 

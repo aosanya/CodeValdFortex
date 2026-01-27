@@ -68,7 +68,19 @@ Before starting implementation:
 
 ## Domain Documentation Approach
 
-**Structure**: Each task has a dedicated specification file in `documents/3-SofwareDevelopment/mvp-details/MVP-FE-XXX.md`
+**Structure**: Each task has a dedicated specification file in `documents/3-SofwareDevelopment/mvp-details/MVP-FL-XXX.md`
+
+**Design Architecture Reference**: When creating new task details, consult the design specifications in `/documents/2-SoftwareDesignAndArchitecture/flutter-designs/`:
+- `dashboard-design.md`: Dashboard architecture, MVVM pattern, widget component hierarchy, file structure
+- `design-patterns.md`: Reusable widget patterns (StatCard, MetricCard, ChartCard, DataTable, Navigation)
+- `sign-in-design.md`: Authentication UI specifications, form patterns, dual login methods
+- Reference these specs for:
+  - Widget component structure and naming conventions
+  - MVVM architecture patterns (ViewModels, Repositories, Models)
+  - Responsive design breakpoints (Mobile: <600px, Tablet: 600-900px, Desktop: 900-1200px, Wide: >1200px)
+  - Theme configuration and Material Design guidelines
+  - File organization and component splitting (500-line limit per file)
+  - Required packages and dependencies (riverpod, fl_chart, go_router, etc.)
 
 **Task File Template**:
 ```markdown
@@ -89,14 +101,19 @@ Brief description of what this task accomplishes...
 
 ## Technical Specifications
 ### Architecture
-- Component structure
-- State management approach
+- Component structure (refer to design specs for widget hierarchy)
+- State management approach (MVVM with Riverpod/Provider per architecture)
 - API integrations
+- Reference relevant design documents:
+  - Widget patterns from `2-SoftwareDesignAndArchitecture/flutter-designs/design-patterns.md`
+  - Layout structure from `2-SoftwareDesignAndArchitecture/flutter-designs/dashboard-design.md`
 
 ### Implementation Details
 - Specific technical requirements
-- Libraries/tools to use
+- Libraries/tools to use (check design specs for package dependencies)
 - Performance considerations
+- File structure following 500-line component limit
+- Responsive breakpoints: Mobile (<600px), Tablet (600-900px), Desktop (900-1200px), Wide (>1200px)
 
 ## Acceptance Criteria
 - [ ] Criterion 1
