@@ -116,7 +116,11 @@ run: ## Run the app (default device)
 	$(FLUTTER) run
 
 .PHONY: run-web
-run-web: ## Run the app on web
+run-web: ## Run the app on web (opens in host browser)
+	$(FLUTTER) run -d web-server --web-port=8090 --web-hostname=0.0.0.0
+
+.PHONY: run-chrome
+run-chrome: ## Run the app on Chrome (if available)
 	$(FLUTTER) run -d chrome
 
 .PHONY: run-dev

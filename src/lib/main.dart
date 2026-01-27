@@ -8,8 +8,13 @@ void main() async {
   // Ensure Flutter binding is initialized
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize app configuration
-  await AppConfig.initialize(env: 'development');
+  try {
+    // Initialize app configuration
+    await AppConfig.initialize(env: 'development');
+  } catch (e) {
+    // Fallback if env file fails to load
+    print('Warning: Failed to load environment config: $e');
+  }
 
   // Run the app with Riverpod provider scope
   runApp(
