@@ -1,12 +1,16 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+/// Callback for token refresh
+typedef TokenRefreshCallback = Future<bool> Function();
+
 /// Authentication interceptor for JWT token injection
 ///
 /// Automatically adds JWT tokens to request headers and handles
 /// token refresh logic when receiving 401 responses.
 class AuthInterceptor extends Interceptor {
   final FlutterSecureStorage _storage;
+  TokenRefreshCallback? onTokenRefresh;
 
   /// Auth token storage key
   static const String authTokenKey = 'auth_token';
@@ -14,7 +18,7 @@ class AuthInterceptor extends Interceptor {
   /// Refresh token storage key
   static const String refreshTokenKey = 'refresh_token';
 
-  AuthInterceptor({FlutterSecureStorage? storage})
+  AuthInterceptor({FlutterSecureStorage? storage, this.onTokenRefresh})
     : _storage = storage ?? const FlutterSecureStorage();
 
   @override
@@ -76,13 +80,10 @@ class AuthInterceptor extends Interceptor {
   }
 
   /// Refresh authentication token
-  ///
-  /// TODO: Implement actual token refresh logic in MVP-FL-009
-  /// For now, this is a placeholder that will be implemented
-  /// when authentication state management is added.
   Future<bool> _refreshToken() async {
-    // Placeholder for token refresh logic
-    // This will be implemented in MVP-FL-009 (Authentication State Management)
+    if (onTokenRefresh != null) {
+      return await onTokenRefresh!();
+    }
     return false;
   }
 

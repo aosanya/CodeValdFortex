@@ -31,11 +31,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     setState(() => _isLoading = true);
 
-    // Simulate login (actual implementation in MVP-FL-010)
+    // Simulate login (deprecated screen - use /sign-in instead)
     await Future.delayed(const Duration(seconds: 1));
-
-    // Set authenticated state
-    ref.read(authStateProvider.notifier).state = true;
 
     // Navigate to redirect destination or dashboard
     if (mounted) {
