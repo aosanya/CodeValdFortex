@@ -84,8 +84,14 @@ Follow the **mandatory completion process** for MVP tasks:
    - Document new services, handlers, or repositories added
 
 4. **Add completed task to `mvp_done.md`** with completion date
-   - Include summary, key deliverables, technical highlights, validation results
-   - List dependencies unblocked by this completion
+   - **KEEP IT CONCISE**: Add only one line to the summary table
+   - Include: Task ID, Title, Completion Date, Coding Session Link, Brief Summary (1 sentence)
+   - **DO NOT** add detailed technical highlights, validation results, or verbose descriptions
+   - All technical details belong in the coding session document, not in mvp_done.md
+   - Example entry:
+     ```markdown
+     | MVP-XX-YYY | Task Name | 2026-01-28 | [Session](coding_sessions/MVP-XX-YYY_task_name.md) | Brief one-sentence summary of what was implemented |
+     ```
 
 5. **Remove completed task from active `mvp.md` file**
    - Strike through the completed MVP-XXX in dependency lists (~~MVP-XXX~~)
