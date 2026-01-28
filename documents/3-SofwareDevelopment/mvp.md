@@ -76,7 +76,7 @@ git branch -d feature/MVP-FL-XXX_description
 |---------|-------|-------------|--------|----------|--------|--------|--------------|---------|
 | MVP-FL-009 | Authentication State Management | Implement auth provider with Riverpod, login/logout methods, token storage (flutter_secure_storage), auto-refresh token logic, user profile management | ✅ Completed | P0 | Medium | Riverpod, JWT, Dart | MVP-FL-005 | [mvp-details/MVP-FL-009.md](mvp-details/MVP-FL-009.md) |
 | MVP-FL-010 | Login & Registration Screens | Create login screen, registration screen, password reset flow, form validation, error display, remember me functionality | ✅ Completed | P0 | Medium | Flutter, Forms, Validation | MVP-FL-009 | [mvp-details/MVP-FL-010.md](mvp-details/MVP-FL-010.md) |
-| MVP-FL-011 | Protected Routes & Permissions | Implement route guards with go_router, role-based route access, permission checking, unauthorized redirect, session expiry handling | 📋 Not Started | P0 | Medium | go_router, Authorization | MVP-FL-010 | - |
+| MVP-FL-011 | Protected Routes & Permissions | Implement route guards with go_router, role-based route access, permission checking, unauthorized redirect, session expiry handling | ✅ Completed | P0 | Medium | go_router, Authorization | MVP-FL-010 | [mvp-details/MVP-FL-011.md](mvp-details/MVP-FL-011.md) |
 
 ---
 
