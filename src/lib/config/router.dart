@@ -8,6 +8,7 @@ import '../views/auth/login_screen.dart';
 import '../views/auth/register_screen.dart';
 import '../views/auth/sign_in/sign_in_view.dart';
 import '../views/auth/sign_up/sign_up_view.dart';
+import '../views/unauthorized_screen.dart';
 import '../views/work_items/work_items_screen.dart';
 import '../views/work_items/work_item_detail_screen.dart';
 import '../views/agencies/agencies_screen.dart';
@@ -16,29 +17,43 @@ import '../views/agents/agents_screen.dart';
 import '../views/agents/agent_detail_screen.dart';
 import '../views/settings_screen.dart';
 import '../providers/auth_provider.dart';
+import '../models/permission.dart';
 
 /// Provider for GoRouter instance
 final routerProvider = Provider<GoRouter>((ref) {
   final isAuthenticated = ref.watch(isAuthenticatedProvider);
+  final user = ref.watch(currentUserProvider);
 
   return GoRouter(
     debugLogDiagnostics: true,
     initialLocation: isAuthenticated ? '/home' : '/sign-in',
     refreshListenable: _AuthNotifier(ref),
     redirect: (BuildContext context, GoRouterState state) {
+      final location = state.matchedLocation;
       final isAuthRoute =
-          state.matchedLocation == '/sign-in' ||
-          state.matchedLocation == '/sign-up' ||
-          state.matchedLocation.startsWith('/auth');
+          location == '/sign-in' ||
+          location == '/sign-up' ||
+          location.startsWith('/auth');
+
+      // Allow unauthorized page
+      if (location == '/unauthorized') {
+        return null;
+      }
 
       // Redirect to sign-in if accessing protected route while not authenticated
-      if (!isAuthenticated && !isAuthRoute && state.matchedLocation != '/') {
-        return '/sign-in?redirect=${Uri.encodeComponent(state.matchedLocation)}';
+      if (!isAuthenticated && !isAuthRoute && location != '/') {
+        return '/sign-in?redirect=${Uri.encodeComponent(location)}';
       }
 
       // Redirect to home if accessing auth routes while authenticated
       if (isAuthenticated && isAuthRoute) {
-        return '/home';
+        final redirect = state.uri.queryParameters['redirect'];
+        return redirect ?? '/home';
+      }
+
+      // Role-based route protection
+      if (isAuthenticated && !_canAccessRoute(location, user)) {
+        return '/unauthorized';
       }
 
       return null; // No redirect needed
@@ -150,9 +165,39 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: 'settings',
         builder: (context, state) => const SettingsScreen(),
       ),
+
+      // Unauthorized
+      GoRoute(
+        path: '/unauthorized',
+        name: 'unauthorized',
+        builder: (context, state) => const UnauthorizedScreen(),
+      ),
     ],
   );
 });
+
+/// Check if user can access a specific route based on their role
+bool _canAccessRoute(String location, dynamic user) {
+  if (user == null) return false;
+
+  final role = UserRole.fromString(user.role);
+
+  // Admin can access everything
+  if (role == UserRole.admin) return true;
+
+  // Settings and admin routes require admin role
+  if (location.startsWith('/settings') || location.startsWith('/admin')) {
+    return false;
+  }
+
+  // Routes containing /delete or /manage require admin or user role
+  if (location.contains('/delete') || location.contains('/manage')) {
+    return role == UserRole.user || role == UserRole.admin;
+  }
+
+  // Default: allow access for authenticated users (user, viewer roles)
+  return role == UserRole.user || role == UserRole.viewer;
+}
 
 /// Helper class to notify GoRouter when auth state changes
 class _AuthNotifier extends ChangeNotifier {
