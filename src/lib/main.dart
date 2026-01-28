@@ -14,7 +14,8 @@ void main() async {
     await AppConfig.initialize(env: 'development');
   } catch (e) {
     // Fallback if env file fails to load
-    print('Warning: Failed to load environment config: $e');
+    // Environment config will use default values
+    debugPrint('Warning: Failed to load environment config: $e');
   }
 
   // Run the app with Riverpod provider scope
