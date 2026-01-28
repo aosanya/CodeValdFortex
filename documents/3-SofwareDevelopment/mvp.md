@@ -62,7 +62,7 @@ git branch -d feature/MVP-XXX_description
 | Task ID | Title | Description | Status | Priority | Effort | Skills | Dependencies | Details |
 |---------|-------|-------------|--------|----------|--------|--------|--------------|---------|
 | ~~MVP-FL-004~~ | ~~State Management Architecture~~ | ~~Implement MVVM pattern with Riverpod/Provider (see: dashboard-design.md architecture), setup ViewModels (DashboardViewModel, StatsViewModel), configure providers, create base state patterns, implement dev tools, establish state organization conventions per file structure spec~~ | ✅ Completed | P0 | Medium | Riverpod/Bloc, Dart, MVVM | ~~MVP-FL-003~~ | [mvp-details/MVP-FL-004.md](mvp-details/MVP-FL-004.md) |
-| MVP-FL-005 | API Client Layer | Create Dio instance with interceptors, error handling, request/response transformers, authentication token management, API service factory pattern | 📋 Not Started | P0 | Medium | Dio, Dart, REST APIs | MVP-FL-004 | [mvp-details/MVP-FL-005.md](mvp-details/MVP-FL-005.md) |
+| ~~MVP-FL-005~~ | ~~API Client Layer~~ | ~~Create Dio instance with interceptors, error handling, request/response transformers, authentication token management, API service factory pattern~~ | ✅ Completed | P0 | Medium | Dio, Dart, REST APIs | ~~MVP-FL-004~~ | [mvp-details/MVP-FL-005.md](mvp-details/MVP-FL-005.md) |
 
 ---
 
@@ -217,7 +217,7 @@ _(None)_
 - **Dashboard Implementation**: 2 tasks (MVP-FL-008A, MVP-FL-008B)
 - **Authentication**: 3 tasks (MVP-FL-009 through MVP-FL-011)
 
-**Total P0**: 11 tasks (3 completed, 10 remaining)
+**Total P0**: 11 tasks (4 completed, 9 remaining)
 
 ### P1 (Critical - Core Features)
 - **Agency Management**: 5 tasks (MVP-FL-012 through MVP-FL-016)
@@ -235,7 +235,7 @@ _(None)_
 
 **Total P2**: 9 tasks
 
-**Grand Total Active Tasks**: 44 tasks (3 completed, 43 remaining)
+**Grand Total Active Tasks**: 44 tasks (4 completed, 42 remaining)
 
 ---
 
@@ -246,7 +246,7 @@ _(None)_
 2. ~~MVP-FL-002~~ - Design System Setup ✅
 3. ~~MVP-FL-003~~ - Routing & Navigation ✅
 4. ~~MVP-FL-004~~ - State Management ✅
-5. MVP-FL-005 - API Client Layer
+5. ~~MVP-FL-005~~ - API Client Layer ✅
 
 ### Phase 2: Work Items PoC & Dashboard (Weeks 3-6)
 6. MVP-FL-006 - Work Items State Management
