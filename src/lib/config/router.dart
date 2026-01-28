@@ -6,6 +6,8 @@ import '../views/dashboard_screen.dart';
 import '../views/error_screen.dart';
 import '../views/auth/login_screen.dart';
 import '../views/auth/register_screen.dart';
+import '../views/auth/sign_in/sign_in_view.dart';
+import '../views/auth/sign_up/sign_up_view.dart';
 import '../views/work_items/work_items_screen.dart';
 import '../views/work_items/work_item_detail_screen.dart';
 import '../views/agencies/agencies_screen.dart';
@@ -13,42 +15,58 @@ import '../views/agencies/agency_detail_screen.dart';
 import '../views/agents/agents_screen.dart';
 import '../views/agents/agent_detail_screen.dart';
 import '../views/settings_screen.dart';
-
-/// Provider for authentication state (placeholder until MVP-FL-009)
-final authStateProvider = StateProvider<bool>((ref) => false);
+import '../providers/auth_provider.dart';
 
 /// Provider for GoRouter instance
 final routerProvider = Provider<GoRouter>((ref) {
-  final isAuthenticated = ref.watch(authStateProvider);
+  final isAuthenticated = ref.watch(isAuthenticatedProvider);
 
   return GoRouter(
     debugLogDiagnostics: true,
-    initialLocation: '/',
+    initialLocation: isAuthenticated ? '/home' : '/sign-in',
     refreshListenable: _AuthNotifier(ref),
     redirect: (BuildContext context, GoRouterState state) {
-      final isAuthRoute = state.matchedLocation.startsWith('/auth');
+      final isAuthRoute =
+          state.matchedLocation == '/sign-in' ||
+          state.matchedLocation == '/sign-up' ||
+          state.matchedLocation.startsWith('/auth');
 
-      // Redirect to login if accessing protected route while not authenticated
+      // Redirect to sign-in if accessing protected route while not authenticated
       if (!isAuthenticated && !isAuthRoute && state.matchedLocation != '/') {
-        return '/auth/login?redirect=${Uri.encodeComponent(state.matchedLocation)}';
+        return '/sign-in?redirect=${Uri.encodeComponent(state.matchedLocation)}';
       }
 
-      // Redirect to dashboard if accessing auth routes while authenticated
+      // Redirect to home if accessing auth routes while authenticated
       if (isAuthenticated && isAuthRoute) {
-        return '/dashboard';
+        return '/home';
       }
 
       return null; // No redirect needed
     },
     errorBuilder: (context, state) => ErrorScreen(error: state.error),
     routes: [
+      GoRoute(path: '/', redirect: (context, state) => '/home'),
+
+      // Home
       GoRoute(
-        path: '/',
+        path: '/home',
         name: 'home',
         builder: (context, state) => const HomeScreen(),
       ),
 
-      // Authentication Routes
+      // New Authentication Routes (MVP-FL-010)
+      GoRoute(
+        path: '/sign-in',
+        name: 'sign-in',
+        builder: (context, state) => const SignInView(),
+      ),
+      GoRoute(
+        path: '/sign-up',
+        name: 'sign-up',
+        builder: (context, state) => const SignUpView(),
+      ),
+
+      // Legacy Authentication Routes (can be deprecated later)
       GoRoute(
         path: '/auth/login',
         name: 'login',
@@ -139,7 +157,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 /// Helper class to notify GoRouter when auth state changes
 class _AuthNotifier extends ChangeNotifier {
   _AuthNotifier(this.ref) {
-    ref.listen(authStateProvider, (previous, next) => notifyListeners());
+    ref.listen(isAuthenticatedProvider, (previous, next) => notifyListeners());
   }
 
   final Ref ref;

@@ -10,6 +10,7 @@ import 'interceptors/logging_interceptor.dart';
 /// and configuration for API communication.
 class DioClient {
   static Dio? _instance;
+  static AuthInterceptor? _authInterceptor;
 
   // Private constructor to prevent external instantiation
   DioClient._();
@@ -18,6 +19,14 @@ class DioClient {
   static Dio get instance {
     _instance ??= _createDioInstance();
     return _instance!;
+  }
+
+  /// Convenience getter for dio (same as instance)
+  static Dio get dio => instance;
+
+  /// Set token refresh callback
+  static void setTokenRefreshCallback(Future<bool> Function() onTokenRefresh) {
+    _authInterceptor?.onTokenRefresh = onTokenRefresh;
   }
 
   /// Create and configure Dio instance
@@ -36,10 +45,13 @@ class DioClient {
       ),
     );
 
+    // Create auth interceptor instance
+    _authInterceptor = AuthInterceptor();
+
     // Add interceptors in order of execution
     dio.interceptors.addAll([
       // 1. Authentication - adds tokens to requests
-      AuthInterceptor(),
+      _authInterceptor!,
 
       // 2. Logging - logs requests and responses (debug mode only)
       LoggingInterceptor(),
