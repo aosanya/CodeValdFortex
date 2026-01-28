@@ -13,6 +13,7 @@ import '../views/work_items/work_items_screen.dart';
 import '../views/work_items/work_item_detail_screen.dart';
 import '../views/agencies/agencies_screen.dart';
 import '../views/agencies/agency_detail_screen.dart';
+import '../views/agency/agency_selection/agency_selection_view.dart';
 import '../views/agents/agents_screen.dart';
 import '../views/agents/agent_detail_screen.dart';
 import '../views/settings_screen.dart';
@@ -125,12 +126,26 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
 
-      // Agencies
+      // Agencies - New MVP-FL-101 implementation
       GoRoute(
         path: '/agencies',
         name: 'agencies',
-        builder: (context, state) => const AgenciesScreen(),
+        builder: (context, state) => const AgencySelectionView(),
         routes: [
+          GoRoute(
+            path: 'create',
+            name: 'agency-create',
+            builder: (context, state) =>
+                const AgenciesScreen(), // Placeholder for create form
+          ),
+          GoRoute(
+            path: ':id/designer',
+            name: 'agency-designer',
+            builder: (context, state) {
+              final id = state.pathParameters['id']!;
+              return AgencyDetailScreen(id: id); // Placeholder for designer
+            },
+          ),
           GoRoute(
             path: ':id',
             name: 'agency-detail',
