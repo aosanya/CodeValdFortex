@@ -13,10 +13,10 @@ void main() {
 
     // Verify that app name is displayed
     expect(find.text(AppConstants.appName), findsWidgets);
-    
+
     // Verify welcome message
     expect(find.text('Welcome to ${AppConstants.appName}'), findsOneWidget);
-    
+
     // Verify Get Started button
     expect(find.text('Get Started'), findsOneWidget);
   });

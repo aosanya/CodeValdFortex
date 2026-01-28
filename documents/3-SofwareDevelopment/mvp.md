@@ -59,8 +59,7 @@ git branch -d feature/MVP-XXX_description
 
 | Task ID | Title | Description | Status | Priority | Effort | Skills | Dependencies | Details |
 |---------|-------|-------------|--------|----------|--------|--------|--------------|---------|
-| MVP-FL-002 | Design System Setup | Configure Material Design theme per design patterns (see: 2-SoftwareDesignAndArchitecture/flutter-designs/design-patterns.md), setup custom ThemeData with light/dark modes, create base widget library (StatCard, MetricCard, ChartCard, DataListCard per architecture), establish design tokens and breakpoints | 📋 Not Started | P0 | Medium | Flutter, Material Design | ~~MVP-FL-001~~ | [mvp-details/MVP-FL-002.md](mvp-details/MVP-FL-002.md) |
-| MVP-FL-003 | Routing & Navigation | Implement go_router, define route structure, create navigation widgets (AppBar, Drawer, breadcrumbs), route guards, error page | 📋 Not Started | P0 | Medium | go_router, Dart | MVP-FL-002 | [mvp-details/MVP-FL-003.md](mvp-details/MVP-FL-003.md) |
+| MVP-FL-003 | Routing & Navigation | Implement go_router, define route structure, create navigation widgets (AppBar, Drawer, breadcrumbs), route guards, error page | 📋 Not Started | P0 | Medium | go_router, Dart | ~~MVP-FL-002~~ | [mvp-details/MVP-FL-003.md](mvp-details/MVP-FL-003.md) |
 | MVP-FL-004 | State Management Architecture | Implement MVVM pattern with Riverpod/Provider (see: dashboard-design.md architecture), setup ViewModels (DashboardViewModel, StatsViewModel), configure providers, create base state patterns, implement dev tools, establish state organization conventions per file structure spec | 📋 Not Started | P0 | Medium | Riverpod/Bloc, Dart, MVVM | MVP-FL-003 | [mvp-details/MVP-FL-004.md](mvp-details/MVP-FL-004.md) |
 | MVP-FL-005 | API Client Layer | Create Dio instance with interceptors, error handling, request/response transformers, authentication token management, API service factory pattern | 📋 Not Started | P0 | Medium | Dio, Dart, REST APIs | MVP-FL-004 | [mvp-details/MVP-FL-005.md](mvp-details/MVP-FL-005.md) |
 
@@ -212,12 +211,12 @@ _(None)_
 ## Task Summary by Priority
 
 ### P0 (Blocking - Must Complete First)
-- **Foundation & Infrastructure**: 5 tasks (MVP-FL-001 through MVP-FL-005)
+- **Foundation & Infrastructure**: 4 tasks (~~MVP-FL-001~~, ~~MVP-FL-002~~, MVP-FL-003, MVP-FL-004, MVP-FL-005)
 - **Work Items PoC**: 3 tasks (MVP-FL-006 through MVP-FL-008)
 - **Dashboard Implementation**: 2 tasks (MVP-FL-008A, MVP-FL-008B)
 - **Authentication**: 3 tasks (MVP-FL-009 through MVP-FL-011)
 
-**Total P0**: 13 tasks
+**Total P0**: 11 tasks (2 completed, 11 remaining)
 
 ### P1 (Critical - Core Features)
 - **Agency Management**: 5 tasks (MVP-FL-012 through MVP-FL-016)
@@ -235,15 +234,15 @@ _(None)_
 
 **Total P2**: 9 tasks
 
-**Grand Total Active Tasks**: 46 tasks
+**Grand Total Active Tasks**: 44 tasks (2 completed, 44 remaining)
 
 ---
 
 ## Implementation Sequence
 
 ### Phase 1: Foundation (Weeks 1-2)
-1. MVP-FL-001 - Flutter Project Setup
-2. MVP-FL-002 - Design System Setup
+1. ~~MVP-FL-001~~ - Flutter Project Setup ✅
+2. ~~MVP-FL-002~~ - Design System Setup ✅
 3. MVP-FL-003 - Routing & Navigation
 4. MVP-FL-004 - State Management
 5. MVP-FL-005 - API Client Layer

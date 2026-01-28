@@ -14,10 +14,14 @@ class AppConfig {
     await dotenv.load(fileName: '.env.$env');
 
     // Set configuration values
-    apiBaseUrl = dotenv.get('API_BASE_URL', fallback: 'http://localhost:8080/api/v1');
+    apiBaseUrl = dotenv.get(
+      'API_BASE_URL',
+      fallback: 'http://localhost:8080/api/v1',
+    );
     wsBaseUrl = dotenv.get('WS_BASE_URL', fallback: 'ws://localhost:8080/ws');
     environment = dotenv.get('ENVIRONMENT', fallback: 'development');
-    debugMode = dotenv.get('DEBUG_MODE', fallback: 'false').toLowerCase() == 'true';
+    debugMode =
+        dotenv.get('DEBUG_MODE', fallback: 'false').toLowerCase() == 'true';
     logLevel = dotenv.get('LOG_LEVEL', fallback: 'info');
   }
 
