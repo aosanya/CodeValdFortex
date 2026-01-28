@@ -59,8 +59,9 @@ git branch -d feature/MVP-XXX_description
 
 | Task ID | Title | Description | Status | Priority | Effort | Skills | Dependencies | Details |
 |---------|-------|-------------|--------|----------|--------|--------|--------------|---------|
-| MVP-FL-003 | Routing & Navigation | Implement go_router, define route structure, create navigation widgets (AppBar, Drawer, breadcrumbs), route guards, error page | 📋 Not Started | P0 | Medium | go_router, Dart | ~~MVP-FL-002~~ | [mvp-details/MVP-FL-003.md](mvp-details/MVP-FL-003.md) |
-| MVP-FL-004 | State Management Architecture | Implement MVVM pattern with Riverpod/Provider (see: dashboard-design.md architecture), setup ViewModels (DashboardViewModel, StatsViewModel), configure providers, create base state patterns, implement dev tools, establish state organization conventions per file structure spec | 📋 Not Started | P0 | Medium | Riverpod/Bloc, Dart, MVVM | MVP-FL-003 | [mvp-details/MVP-FL-004.md](mvp-details/MVP-FL-004.md) |
+| Task ID | Title | Description | Status | Priority | Effort | Skills | Dependencies | Details |
+|---------|-------|-------------|--------|----------|--------|--------|--------------|---------|
+| MVP-FL-004 | State Management Architecture | Implement MVVM pattern with Riverpod/Provider (see: dashboard-design.md architecture), setup ViewModels (DashboardViewModel, StatsViewModel), configure providers, create base state patterns, implement dev tools, establish state organization conventions per file structure spec | 📋 Not Started | P0 | Medium | Riverpod/Bloc, Dart, MVVM | ~~MVP-FL-003~~ | [mvp-details/MVP-FL-004.md](mvp-details/MVP-FL-004.md) |
 | MVP-FL-005 | API Client Layer | Create Dio instance with interceptors, error handling, request/response transformers, authentication token management, API service factory pattern | 📋 Not Started | P0 | Medium | Dio, Dart, REST APIs | MVP-FL-004 | [mvp-details/MVP-FL-005.md](mvp-details/MVP-FL-005.md) |
 
 ---
