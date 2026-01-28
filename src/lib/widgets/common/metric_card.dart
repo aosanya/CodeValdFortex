@@ -65,7 +65,7 @@ class MetricCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(AppTheme.space8),
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.1),
+                      color: color.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(
                         AppTheme.radiusMedium,
                       ),
@@ -134,7 +134,7 @@ class MetricCard extends StatelessWidget {
         vertical: AppTheme.space4,
       ),
       decoration: BoxDecoration(
-        color: changeColor.withOpacity(0.1),
+        color: changeColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
       ),
       child: Row(
@@ -189,7 +189,7 @@ class MetricCard extends StatelessWidget {
             dotData: const FlDotData(show: false),
             belowBarData: BarAreaData(
               show: true,
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
             ),
           ),
         ],
