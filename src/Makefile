@@ -117,6 +117,9 @@ run: ## Run the app (default device)
 
 .PHONY: run-web
 run-web: ## Run the app on web (opens in host browser)
+	@-fuser -k 8090/tcp 2>/dev/null || true
+	@-pkill -9 -f "dart.*web-server" 2>/dev/null || true
+	@sleep 1
 	$(FLUTTER) run -d web-server --web-port=8090 --web-hostname=0.0.0.0
 
 .PHONY: run-chrome

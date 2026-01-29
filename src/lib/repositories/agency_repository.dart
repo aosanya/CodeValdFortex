@@ -37,12 +37,12 @@ class AgencyRepository {
       }
 
       final response = await _dio.get(
-        '/api/v1/agencies',
+        '/agencies',
         queryParameters: queryParameters,
       );
 
-      final data = response.data as Map<String, dynamic>;
-      final agencies = data['agencies'] as List<dynamic>;
+      // API returns direct array, not wrapped in {agencies: [...]}
+      final agencies = response.data as List<dynamic>;
 
       return agencies
           .map((json) => Agency.fromJson(json as Map<String, dynamic>))
@@ -55,7 +55,7 @@ class AgencyRepository {
   /// Get a single agency by ID
   Future<Agency> getAgencyById(String id) async {
     try {
-      final response = await _dio.get('/api/v1/agencies/$id');
+      final response = await _dio.get('/agencies/$id');
 
       return Agency.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
@@ -70,7 +70,7 @@ class AgencyRepository {
   }) async {
     try {
       final response = await _dio.post(
-        '/api/v1/agencies',
+        '/agencies',
         data: {'name': name, 'description': description},
       );
 
@@ -83,7 +83,7 @@ class AgencyRepository {
   /// Update an existing agency
   Future<Agency> updateAgency(String id, Map<String, dynamic> updates) async {
     try {
-      final response = await _dio.put('/api/v1/agencies/$id', data: updates);
+      final response = await _dio.put('/agencies/$id', data: updates);
 
       return Agency.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
@@ -94,7 +94,7 @@ class AgencyRepository {
   /// Delete an agency
   Future<void> deleteAgency(String id) async {
     try {
-      await _dio.delete('/api/v1/agencies/$id');
+      await _dio.delete('/agencies/$id');
     } on DioException catch (e) {
       throw _handleError(e);
     }

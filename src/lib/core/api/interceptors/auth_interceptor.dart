@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../../auth/auth_event_notifier.dart';
 
 /// Callback for token refresh
 typedef TokenRefreshCallback = Future<bool> Function();
@@ -33,6 +34,18 @@ class AuthInterceptor extends Interceptor {
       if (token != null && token.isNotEmpty) {
         // Add Authorization header with Bearer token
         options.headers['Authorization'] = 'Bearer $token';
+      } else {
+        // Check if this is an auth-related endpoint that doesn't need a token
+        final path = options.path.toLowerCase();
+        final isAuthEndpoint = path.contains('/auth/login') || 
+                               path.contains('/auth/register') ||
+                               path.contains('/sign-in') ||
+                               path.contains('/sign-up');
+        
+        // Only emit event if not an auth endpoint
+        if (!isAuthEndpoint) {
+          authEventNotifier.emit(AuthEvent.tokenMissing);
+        }
       }
 
       handler.next(options);
@@ -67,10 +80,17 @@ class AuthInterceptor extends Interceptor {
           final response = await dio.fetch(options);
           handler.resolve(response);
           return;
+        } else {
+          // Token refresh failed - clear tokens and notify UI
+          await _clearTokens();
+          authEventNotifier.emit(AuthEvent.tokenRefreshFailed);
+          handler.next(err);
+          return;
         }
       } catch (e) {
         // Token refresh failed, clear tokens and propagate error
         await _clearTokens();
+        authEventNotifier.emit(AuthEvent.tokenRefreshFailed);
         handler.next(err);
         return;
       }

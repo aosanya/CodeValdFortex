@@ -9,6 +9,7 @@ import '../views/auth/register_screen.dart';
 import '../views/auth/sign_in/sign_in_view.dart';
 import '../views/auth/sign_up/sign_up_view.dart';
 import '../views/unauthorized_screen.dart';
+import '../views/session_expired_screen.dart';
 import '../views/work_items/work_items_screen.dart';
 import '../views/work_items/work_item_detail_screen.dart';
 import '../views/agencies/agencies_screen.dart';
@@ -38,6 +39,11 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       // Allow unauthorized page
       if (location == '/unauthorized') {
+        return null;
+      }
+
+      // Allow session expired page
+      if (location == '/session-expired') {
         return null;
       }
 
@@ -86,6 +92,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/sign-up',
         name: 'sign-up',
         builder: (context, state) => const SignUpView(),
+      ),
+
+      // Session Expired
+      GoRoute(
+        path: '/session-expired',
+        name: 'session-expired',
+        builder: (context, state) => const SessionExpiredScreen(),
       ),
 
       // Legacy Authentication Routes (can be deprecated later)
