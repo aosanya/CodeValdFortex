@@ -12,9 +12,9 @@ import '../views/unauthorized_screen.dart';
 import '../views/session_expired_screen.dart';
 import '../views/work_items/work_items_screen.dart';
 import '../views/work_items/work_item_detail_screen.dart';
-import '../views/agencies/agencies_screen.dart';
-import '../views/agencies/agency_detail_screen.dart';
 import '../views/agency/agency_selection/agency_selection_view.dart';
+import '../views/agency/create_agency/create_agency_view.dart';
+import '../views/agencies/agency_detail_screen.dart';
 import '../views/agents/agents_screen.dart';
 import '../views/agents/agent_detail_screen.dart';
 import '../views/settings_screen.dart';
@@ -154,8 +154,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'create',
             name: 'agency-create',
-            builder: (context, state) =>
-                const AgenciesScreen(), // Placeholder for create form
+            builder: (context, state) => const CreateAgencyView(),
           ),
           GoRoute(
             path: ':id/designer',

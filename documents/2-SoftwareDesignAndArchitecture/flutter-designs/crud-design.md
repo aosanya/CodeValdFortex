@@ -1,0 +1,1517 @@
+# CRUD Operations Design Pattern
+
+Complete design specification for Create, Read, Update, Delete (CRUD) operations in CodeValdFortex.
+
+## Overview
+
+This document defines consistent patterns for CRUD operations across all entities (agencies, work items, roles, workflows, goals, etc.). All CRUD operations use **dedicated full-screen views** rather than modals for better UX, accessibility, and mobile responsiveness.
+
+## Design Principles
+
+1. **Separate Views**: Each operation (Create, Edit, Detail) has its own full-screen view
+2. **Consistent Navigation**: Standard navigation patterns across all entities
+3. **Form Validation**: Real-time validation with clear error messaging
+4. **Responsive Design**: Mobile-first approach with adaptive layouts
+5. **State Management**: MVVM pattern with Riverpod for all CRUD operations
+6. **Error Handling**: Comprehensive error states with retry mechanisms
+7. **Loading States**: Clear loading indicators during async operations
+8. **Confirmation Dialogs**: Used only for destructive actions (delete, discard changes)
+
+---
+
+## Architecture Pattern
+
+### File Structure (Generic Entity)
+
+```
+lib/
+├── models/
+│   └── {entity}/
+│       ├── {entity}_model.dart          # Data model
+│       ├── {entity}_form_state.dart     # Form validation state
+│       └── {entity}_status.dart         # Status enums
+├── repositories/
+│   └── {entity}_repository.dart         # API integration
+├── viewmodels/
+│   └── {entity}/
+│       ├── {entity}_list_viewmodel.dart
+│       ├── {entity}_detail_viewmodel.dart
+│       └── {entity}_form_viewmodel.dart
+└── views/
+    └── {entity}/
+        ├── {entity}_list_view.dart      # READ - List all
+        ├── {entity}_detail_view.dart    # READ - Single item
+        ├── create_{entity}_view.dart    # CREATE
+        ├── edit_{entity}_view.dart      # UPDATE
+        └── widgets/
+            ├── {entity}_card.dart
+            ├── {entity}_form.dart       # Shared form widget
+            ├── {entity}_filters.dart
+            └── index.dart
+```
+
+### Example: Agency CRUD Structure
+
+```
+lib/views/agency/
+├── agency_list_view.dart           # List agencies
+├── agency_detail_view.dart         # View single agency
+├── create_agency_view.dart         # Create new agency
+├── edit_agency_view.dart           # Edit existing agency
+└── widgets/
+    ├── agency_form.dart            # Reusable form component
+    ├── agency_card.dart
+    └── index.dart
+```
+
+---
+
+## CREATE Operation
+
+### Design Specifications
+
+**View Type**: Full-screen dedicated view  
+**Navigation**: Navigate from list view via FAB or AppBar action  
+**Layout**: Single-column centered form with max-width constraint  
+**Validation**: Real-time with inline error messages  
+**Actions**: Save (primary) and Cancel (secondary)
+
+### Create View Layout
+
+```dart
+/// Generic CREATE view pattern
+class Create{Entity}View extends ConsumerStatefulWidget {
+  const Create{Entity}View({super.key});
+
+  @override
+  ConsumerState<Create{Entity}View> createState() => _Create{Entity}ViewState();
+}
+
+class _Create{Entity}ViewState extends ConsumerState<Create{Entity}View> {
+  final _formKey = GlobalKey<FormState>();
+  
+  @override
+  Widget build(BuildContext context) {
+    final viewModel = ref.watch({entity}FormViewModelProvider);
+    
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Create {Entity}'),
+        actions: [
+          // Optional: Help/Info button
+          IconButton(
+            icon: const Icon(Icons.help_outline),
+            onPressed: () => _showHelp(context),
+          ),
+        ],
+      ),
+      body: viewModel.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 800),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Optional: Header section with description
+                        _buildHeader(),
+                        const SizedBox(height: 24),
+                        
+                        // Reusable form widget
+                        {Entity}Form(
+                          formState: viewModel.formState,
+                          onChanged: (field, value) {
+                            ref.read({entity}FormViewModelProvider.notifier)
+                                .updateField(field, value);
+                          },
+                        ),
+                        
+                        const SizedBox(height: 32),
+                        
+                        // Action buttons
+                        _buildActionButtons(context, viewModel),
+                        
+                        // Error display
+                        if (viewModel.error != null) ...[
+                          const SizedBox(height: 16),
+                          _buildErrorCard(viewModel.error!),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+    );
+  }
+  
+  Widget _buildHeader() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'New {Entity}',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Fill in the details below to create a new {entity}.',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildActionButtons(BuildContext context, {Entity}FormViewModel viewModel) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        // Cancel button
+        OutlinedButton(
+          onPressed: viewModel.isLoading ? null : () => _handleCancel(context),
+          child: const Text('Cancel'),
+        ),
+        const SizedBox(width: 12),
+        
+        // Save button
+        FilledButton.icon(
+          onPressed: viewModel.isLoading || !viewModel.isValid
+              ? null
+              : () => _handleSave(context),
+          icon: const Icon(Icons.save),
+          label: const Text('Create {Entity}'),
+        ),
+      ],
+    );
+  }
+  
+  Future<void> _handleSave(BuildContext context) async {
+    if (!_formKey.currentState!.validate()) return;
+    
+    final success = await ref
+        .read({entity}FormViewModelProvider.notifier)
+        .create();
+    
+    if (success && context.mounted) {
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('{Entity} created successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      
+      // Navigate to detail view or list
+      context.go('/{entities}/${viewModel.createdId}');
+    }
+  }
+  
+  void _handleCancel(BuildContext context) {
+    final hasChanges = ref.read({entity}FormViewModelProvider).hasUnsavedChanges;
+    
+    if (hasChanges) {
+      _showDiscardDialog(context);
+    } else {
+      context.pop();
+    }
+  }
+  
+  void _showDiscardDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Discard Changes?'),
+        content: const Text('You have unsaved changes. Are you sure you want to discard them?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Continue Editing'),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(context); // Close dialog
+              context.pop(); // Go back
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: const Text('Discard'),
+          ),
+        ],
+      ),
+    );
+  }
+  
+  Widget _buildErrorCard(String error) {
+    return Card(
+      color: Theme.of(context).colorScheme.errorContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Icon(
+              Icons.error_outline,
+              color: Theme.of(context).colorScheme.error,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                error,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onErrorContainer,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+### Reusable Form Widget Pattern
+
+```dart
+/// Shared form widget for CREATE and UPDATE
+class {Entity}Form extends StatelessWidget {
+  final {Entity}FormState formState;
+  final Function(String field, dynamic value) onChanged;
+  final bool readOnly;
+
+  const {Entity}Form({
+    super.key,
+    required this.formState,
+    required this.onChanged,
+    this.readOnly = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Required fields section
+        _buildSectionHeader(context, 'Basic Information', required: true),
+        const SizedBox(height: 16),
+        
+        TextFormField(
+          initialValue: formState.name,
+          decoration: const InputDecoration(
+            labelText: 'Name *',
+            hintText: 'Enter {entity} name',
+            helperText: 'Unique identifier for this {entity}',
+            border: OutlineInputBorder(),
+          ),
+          enabled: !readOnly,
+          maxLength: 100,
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) {
+              return 'Name is required';
+            }
+            if (value.trim().length < 3) {
+              return 'Name must be at least 3 characters';
+            }
+            return null;
+          },
+          onChanged: (value) => onChanged('name', value),
+        ),
+        const SizedBox(height: 16),
+        
+        TextFormField(
+          initialValue: formState.description,
+          decoration: const InputDecoration(
+            labelText: 'Description',
+            hintText: 'Describe the purpose of this {entity}',
+            border: OutlineInputBorder(),
+            alignLabelWithHint: true,
+          ),
+          enabled: !readOnly,
+          maxLines: 4,
+          maxLength: 500,
+          onChanged: (value) => onChanged('description', value),
+        ),
+        
+        const SizedBox(height: 24),
+        
+        // Optional fields section
+        _buildSectionHeader(context, 'Additional Settings', required: false),
+        const SizedBox(height: 16),
+        
+        // Status dropdown
+        DropdownButtonFormField<{Entity}Status>(
+          value: formState.status,
+          decoration: const InputDecoration(
+            labelText: 'Status',
+            border: OutlineInputBorder(),
+          ),
+          items: {Entity}Status.values.map((status) {
+            return DropdownMenuItem(
+              value: status,
+              child: Row(
+                children: [
+                  Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: status.badgeColor,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(status.displayName),
+                ],
+              ),
+            );
+          }).toList(),
+          onChanged: readOnly ? null : (value) {
+            if (value != null) onChanged('status', value);
+          },
+        ),
+        
+        const SizedBox(height: 16),
+        
+        // Tags input (chip-based)
+        _buildTagsField(context),
+        
+        const SizedBox(height: 16),
+        
+        // Date picker example
+        _buildDateField(context, 'Due Date', formState.dueDate),
+      ],
+    );
+  }
+  
+  Widget _buildSectionHeader(BuildContext context, String title, {required bool required}) {
+    return Row(
+      children: [
+        Text(
+          title,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        if (required) ...[
+          const SizedBox(width: 4),
+          Text(
+            '*',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.error,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+  
+  Widget _buildTagsField(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Tags'),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            ...formState.tags.map((tag) => Chip(
+              label: Text(tag),
+              deleteIcon: readOnly ? null : const Icon(Icons.close, size: 18),
+              onDeleted: readOnly ? null : () {
+                final newTags = List<String>.from(formState.tags)..remove(tag);
+                onChanged('tags', newTags);
+              },
+            )),
+            if (!readOnly)
+              ActionChip(
+                avatar: const Icon(Icons.add, size: 18),
+                label: const Text('Add Tag'),
+                onPressed: () => _showAddTagDialog(context),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+  
+  Widget _buildDateField(BuildContext context, String label, DateTime? value) {
+    return InkWell(
+      onTap: readOnly ? null : () async {
+        final date = await showDatePicker(
+          context: context,
+          initialDate: value ?? DateTime.now(),
+          firstDate: DateTime.now(),
+          lastDate: DateTime.now().add(const Duration(days: 365)),
+        );
+        if (date != null) {
+          onChanged('dueDate', date);
+        }
+      },
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+          suffixIcon: const Icon(Icons.calendar_today),
+        ),
+        child: Text(
+          value != null
+              ? '${value.day}/${value.month}/${value.year}'
+              : 'Select date',
+          style: value == null
+              ? TextStyle(color: Theme.of(context).hintColor)
+              : null,
+        ),
+      ),
+    );
+  }
+  
+  void _showAddTagDialog(BuildContext context) {
+    // Implementation for adding tags
+  }
+}
+```
+
+---
+
+## READ Operation
+
+### List View Pattern
+
+```dart
+/// Generic LIST view pattern
+class {Entity}ListView extends ConsumerWidget {
+  const {Entity}ListView({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final listState = ref.watch({entity}ListViewModelProvider);
+    
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('{Entities}'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.filter_list),
+            onPressed: () => _showFilters(context, ref),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => context.push('/{entities}/create'),
+        icon: const Icon(Icons.add),
+        label: const Text('Create {Entity}'),
+      ),
+      body: Column(
+        children: [
+          // Search bar
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: {Entity}SearchBar(
+              onSearch: (query) {
+                ref.read({entity}ListViewModelProvider.notifier).search(query);
+              },
+            ),
+          ),
+          
+          // Active filters chips
+          _buildActiveFilters(context, ref),
+          
+          // List content
+          Expanded(
+            child: listState.when(
+              data: (state) {
+                if (state.{entities}.isEmpty) {
+                  return {Entity}EmptyState(
+                    onCreatePressed: () => context.push('/{entities}/create'),
+                  );
+                }
+                
+                return RefreshIndicator(
+                  onRefresh: () => ref.refresh({entity}ListViewModelProvider.future),
+                  child: _buildList(context, state.{entities}),
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, stack) => _buildErrorState(context, error, ref),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  
+  Widget _buildList(BuildContext context, List<{Entity}> items) {
+    final isDesktop = MediaQuery.of(context).size.width > 900;
+    
+    if (isDesktop) {
+      // Grid layout for desktop
+      return GridView.builder(
+        padding: const EdgeInsets.all(16),
+        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: 400,
+          childAspectRatio: 1.5,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+        ),
+        itemCount: items.length,
+        itemBuilder: (context, index) => {Entity}Card(
+          {entity}: items[index],
+          onTap: () => context.go('/{entities}/${items[index].id}'),
+        ),
+      );
+    } else {
+      // List layout for mobile/tablet
+      return ListView.separated(
+        padding: const EdgeInsets.all(16),
+        itemCount: items.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        itemBuilder: (context, index) => {Entity}ListItem(
+          {entity}: items[index],
+          onTap: () => context.go('/{entities}/${items[index].id}'),
+        ),
+      );
+    }
+  }
+}
+```
+
+### Detail View Pattern
+
+```dart
+/// Generic DETAIL view pattern
+class {Entity}DetailView extends ConsumerWidget {
+  final String {entity}Id;
+  
+  const {Entity}DetailView({
+    super.key,
+    required this.{entity}Id,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final detailState = ref.watch({entity}DetailViewModelProvider({entity}Id));
+    
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('{Entity} Details'),
+        actions: [
+          // Edit action
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: () => context.push('/{entities}/${entity}Id/edit'),
+          ),
+          
+          // More options menu
+          PopupMenuButton(
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'duplicate',
+                child: ListTile(
+                  leading: Icon(Icons.content_copy),
+                  title: Text('Duplicate'),
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'export',
+                child: ListTile(
+                  leading: Icon(Icons.download),
+                  title: Text('Export'),
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'delete',
+                child: ListTile(
+                  leading: Icon(Icons.delete, color: Colors.red),
+                  title: Text('Delete', style: TextStyle(color: Colors.red)),
+                ),
+              ),
+            ],
+            onSelected: (value) => _handleMenuAction(context, ref, value as String),
+          ),
+        ],
+      ),
+      body: detailState.when(
+        data: ({entity}) => SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1200),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Header card
+                  _buildHeaderCard(context, {entity}),
+                  const SizedBox(height: 24),
+                  
+                  // Details sections
+                  _buildDetailsSection(context, {entity}),
+                  const SizedBox(height: 24),
+                  
+                  // Related items / Actions
+                  _buildRelatedItems(context, {entity}),
+                  const SizedBox(height: 24),
+                  
+                  // Activity timeline
+                  _buildActivityTimeline(context, {entity}),
+                ],
+              ),
+            ),
+          ),
+        ),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => _buildErrorState(context, error, ref),
+      ),
+    );
+  }
+  
+  Widget _buildHeaderCard(BuildContext context, {Entity} {entity}) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    {entity}.name,
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                ),
+                Chip(
+                  label: Text({entity}.status.displayName),
+                  backgroundColor: {entity}.status.badgeColor,
+                ),
+              ],
+            ),
+            if ({entity}.description?.isNotEmpty ?? false) ...[
+              const SizedBox(height: 16),
+              Text(
+                {entity}.description!,
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+            ],
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: {entity}.tags.map((tag) => Chip(label: Text(tag))).toList(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  void _handleMenuAction(BuildContext context, WidgetRef ref, String action) {
+    switch (action) {
+      case 'duplicate':
+        _handleDuplicate(context, ref);
+        break;
+      case 'export':
+        _handleExport(context, ref);
+        break;
+      case 'delete':
+        _showDeleteDialog(context, ref);
+        break;
+    }
+  }
+  
+  void _showDeleteDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete {Entity}?'),
+        content: const Text(
+          'This action cannot be undone. All associated data will be permanently deleted.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await _handleDelete(context, ref);
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
+  
+  Future<void> _handleDelete(BuildContext context, WidgetRef ref) async {
+    final success = await ref
+        .read({entity}DetailViewModelProvider({entity}Id).notifier)
+        .delete();
+    
+    if (success && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('{Entity} deleted successfully')),
+      );
+      context.go('/{entities}');
+    }
+  }
+}
+```
+
+---
+
+## UPDATE Operation
+
+### Edit View Pattern
+
+```dart
+/// Generic UPDATE/EDIT view pattern
+class Edit{Entity}View extends ConsumerStatefulWidget {
+  final String {entity}Id;
+  
+  const Edit{Entity}View({
+    super.key,
+    required this.{entity}Id,
+  });
+
+  @override
+  ConsumerState<Edit{Entity}View> createState() => _Edit{Entity}ViewState();
+}
+
+class _Edit{Entity}ViewState extends ConsumerState<Edit{Entity}View> {
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    // Load existing data
+    Future.microtask(() {
+      ref.read({entity}FormViewModelProvider.notifier)
+          .loadForEdit(widget.{entity}Id);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final viewModel = ref.watch({entity}FormViewModelProvider);
+    
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Edit {Entity}'),
+        actions: [
+          if (viewModel.hasUnsavedChanges)
+            IconButton(
+              icon: const Icon(Icons.restore),
+              tooltip: 'Reset Changes',
+              onPressed: () => _handleReset(context),
+            ),
+        ],
+      ),
+      body: viewModel.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 800),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Unsaved changes warning
+                        if (viewModel.hasUnsavedChanges)
+                          _buildUnsavedChangesWarning(),
+                        
+                        // Reuse the same form widget
+                        {Entity}Form(
+                          formState: viewModel.formState,
+                          onChanged: (field, value) {
+                            ref.read({entity}FormViewModelProvider.notifier)
+                                .updateField(field, value);
+                          },
+                        ),
+                        
+                        const SizedBox(height: 32),
+                        
+                        _buildActionButtons(context, viewModel),
+                        
+                        if (viewModel.error != null) ...[
+                          const SizedBox(height: 16),
+                          _buildErrorCard(viewModel.error!),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+    );
+  }
+  
+  Widget _buildUnsavedChangesWarning() {
+    return Card(
+      color: Theme.of(context).colorScheme.tertiaryContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            Icon(
+              Icons.info_outline,
+              color: Theme.of(context).colorScheme.onTertiaryContainer,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'You have unsaved changes',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onTertiaryContainer,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildActionButtons(BuildContext context, {Entity}FormViewModel viewModel) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        OutlinedButton(
+          onPressed: viewModel.isLoading ? null : () => _handleCancel(context),
+          child: const Text('Cancel'),
+        ),
+        const SizedBox(width: 12),
+        FilledButton.icon(
+          onPressed: viewModel.isLoading || !viewModel.isValid || !viewModel.hasUnsavedChanges
+              ? null
+              : () => _handleUpdate(context),
+          icon: const Icon(Icons.save),
+          label: const Text('Save Changes'),
+        ),
+      ],
+    );
+  }
+  
+  Future<void> _handleUpdate(BuildContext context) async {
+    if (!_formKey.currentState!.validate()) return;
+    
+    final success = await ref
+        .read({entity}FormViewModelProvider.notifier)
+        .update(widget.{entity}Id);
+    
+    if (success && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('{Entity} updated successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      context.go('/{entities}/${widget.{entity}Id}');
+    }
+  }
+  
+  void _handleCancel(BuildContext context) {
+    final hasChanges = ref.read({entity}FormViewModelProvider).hasUnsavedChanges;
+    
+    if (hasChanges) {
+      _showDiscardDialog(context);
+    } else {
+      context.pop();
+    }
+  }
+  
+  void _handleReset(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reset Changes?'),
+        content: const Text('This will restore the original values. Continue?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              ref.read({entity}FormViewModelProvider.notifier)
+                  .loadForEdit(widget.{entity}Id);
+              Navigator.pop(context);
+            },
+            child: const Text('Reset'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+---
+
+## DELETE Operation
+
+**Design**: Deletion is always triggered from Detail or List views via confirmation dialog (not a separate view).
+
+### Delete Confirmation Dialog Pattern
+
+```dart
+Future<void> showDelete{Entity}Dialog(
+  BuildContext context,
+  WidgetRef ref,
+  String {entity}Id,
+  String {entity}Name,
+) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Delete {Entity}?'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Are you sure you want to delete "{entity}Name"?'),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.errorContainer,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.warning_amber,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'This action cannot be undone.',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onErrorContainer,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Optional: Show dependencies/impacts
+          const SizedBox(height: 12),
+          const Text(
+            'The following will also be affected:',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          const Text('• All related work items'),
+          const Text('• Associated workflows'),
+          const Text('• Linked agents'),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(context, true),
+          style: FilledButton.styleFrom(
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+          child: const Text('Delete'),
+        ),
+      ],
+    ),
+  );
+
+  if (confirmed == true && context.mounted) {
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: Card(
+          child: Padding(
+            padding: EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Deleting {entity}...'),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    try {
+      await ref.read({entity}RepositoryProvider).delete({entity}Id);
+      
+      if (context.mounted) {
+        Navigator.pop(context); // Close loading dialog
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('{Entity} deleted successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        context.go('/{entities}'); // Navigate to list
+      }
+    } catch (e) {
+      if (context.mounted) {
+        Navigator.pop(context); // Close loading dialog
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to delete {entity}: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+}
+```
+
+---
+
+## State Management (MVVM)
+
+### Form State Model
+
+```dart
+class {Entity}FormState {
+  final String name;
+  final String description;
+  final {Entity}Status status;
+  final List<String> tags;
+  final DateTime? dueDate;
+  final Map<String, String> errors;
+  final bool isModified;
+
+  const {Entity}FormState({
+    this.name = '',
+    this.description = '',
+    this.status = {Entity}Status.draft,
+    this.tags = const [],
+    this.dueDate,
+    this.errors = const {},
+    this.isModified = false,
+  });
+
+  {Entity}FormState copyWith({
+    String? name,
+    String? description,
+    {Entity}Status? status,
+    List<String>? tags,
+    DateTime? dueDate,
+    Map<String, String>? errors,
+    bool? isModified,
+  }) {
+    return {Entity}FormState(
+      name: name ?? this.name,
+      description: description ?? this.description,
+      status: status ?? this.status,
+      tags: tags ?? this.tags,
+      dueDate: dueDate ?? this.dueDate,
+      errors: errors ?? this.errors,
+      isModified: isModified ?? this.isModified,
+    );
+  }
+
+  bool get isValid => errors.isEmpty && name.trim().isNotEmpty;
+}
+```
+
+### Form ViewModel
+
+```dart
+@riverpod
+class {Entity}FormViewModel extends _${Entity}FormViewModel {
+  @override
+  {Entity}FormViewModelState build() {
+    return {Entity}FormViewModelState(
+      formState: const {Entity}FormState(),
+      isLoading: false,
+      hasUnsavedChanges: false,
+    );
+  }
+
+  void updateField(String field, dynamic value) {
+    final currentState = state.formState;
+    {Entity}FormState newFormState;
+
+    switch (field) {
+      case 'name':
+        newFormState = currentState.copyWith(name: value as String);
+        break;
+      case 'description':
+        newFormState = currentState.copyWith(description: value as String);
+        break;
+      case 'status':
+        newFormState = currentState.copyWith(status: value as {Entity}Status);
+        break;
+      case 'tags':
+        newFormState = currentState.copyWith(tags: value as List<String>);
+        break;
+      case 'dueDate':
+        newFormState = currentState.copyWith(dueDate: value as DateTime?);
+        break;
+      default:
+        return;
+    }
+
+    // Validate
+    final errors = _validate(newFormState);
+    newFormState = newFormState.copyWith(
+      errors: errors,
+      isModified: true,
+    );
+
+    state = state.copyWith(
+      formState: newFormState,
+      hasUnsavedChanges: true,
+    );
+  }
+
+  Map<String, String> _validate({Entity}FormState formState) {
+    final errors = <String, String>{};
+
+    if (formState.name.trim().isEmpty) {
+      errors['name'] = 'Name is required';
+    } else if (formState.name.trim().length < 3) {
+      errors['name'] = 'Name must be at least 3 characters';
+    }
+
+    return errors;
+  }
+
+  Future<bool> create() async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      final repository = ref.read({entity}RepositoryProvider);
+      final {entity} = await repository.create(
+        name: state.formState.name,
+        description: state.formState.description,
+        status: state.formState.status,
+        tags: state.formState.tags,
+        dueDate: state.formState.dueDate,
+      );
+
+      state = state.copyWith(
+        isLoading: false,
+        createdId: {entity}.id,
+        hasUnsavedChanges: false,
+      );
+
+      // Invalidate list to refresh
+      ref.invalidate({entity}ListViewModelProvider);
+
+      return true;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      );
+      return false;
+    }
+  }
+
+  Future<void> loadForEdit(String id) async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      final repository = ref.read({entity}RepositoryProvider);
+      final {entity} = await repository.getById(id);
+
+      state = state.copyWith(
+        formState: {Entity}FormState(
+          name: {entity}.name,
+          description: {entity}.description,
+          status: {entity}.status,
+          tags: {entity}.tags,
+          dueDate: {entity}.dueDate,
+        ),
+        isLoading: false,
+        originalFormState: {Entity}FormState(
+          name: {entity}.name,
+          description: {entity}.description,
+          status: {entity}.status,
+          tags: {entity}.tags,
+          dueDate: {entity}.dueDate,
+        ),
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      );
+    }
+  }
+
+  Future<bool> update(String id) async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      final repository = ref.read({entity}RepositoryProvider);
+      await repository.update(
+        id: id,
+        name: state.formState.name,
+        description: state.formState.description,
+        status: state.formState.status,
+        tags: state.formState.tags,
+        dueDate: state.formState.dueDate,
+      );
+
+      state = state.copyWith(
+        isLoading: false,
+        hasUnsavedChanges: false,
+      );
+
+      // Invalidate caches
+      ref.invalidate({entity}ListViewModelProvider);
+      ref.invalidate({entity}DetailViewModelProvider(id));
+
+      return true;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      );
+      return false;
+    }
+  }
+}
+
+class {Entity}FormViewModelState {
+  final {Entity}FormState formState;
+  final {Entity}FormState? originalFormState;
+  final bool isLoading;
+  final String? error;
+  final String? createdId;
+  final bool hasUnsavedChanges;
+
+  {Entity}FormViewModelState({
+    required this.formState,
+    this.originalFormState,
+    required this.isLoading,
+    this.error,
+    this.createdId,
+    required this.hasUnsavedChanges,
+  });
+
+  bool get isValid => formState.isValid;
+
+  {Entity}FormViewModelState copyWith({
+    {Entity}FormState? formState,
+    {Entity}FormState? originalFormState,
+    bool? isLoading,
+    String? error,
+    String? createdId,
+    bool? hasUnsavedChanges,
+  }) {
+    return {Entity}FormViewModelState(
+      formState: formState ?? this.formState,
+      originalFormState: originalFormState ?? this.originalFormState,
+      isLoading: isLoading ?? this.isLoading,
+      error: error,
+      createdId: createdId ?? this.createdId,
+      hasUnsavedChanges: hasUnsavedChanges ?? this.hasUnsavedChanges,
+    );
+  }
+}
+```
+
+---
+
+## Routing Configuration
+
+### Router Setup Example
+
+```dart
+final router = GoRouter(
+  routes: [
+    // List view
+    GoRoute(
+      path: '/{entities}',
+      name: '{entities}',
+      builder: (context, state) => const {Entity}ListView(),
+    ),
+    
+    // Create view (full screen, not modal)
+    GoRoute(
+      path: '/{entities}/create',
+      name: 'create-{entity}',
+      builder: (context, state) => const Create{Entity}View(),
+    ),
+    
+    // Detail view
+    GoRoute(
+      path: '/{entities}/:id',
+      name: '{entity}-detail',
+      builder: (context, state) {
+        final id = state.pathParameters['id']!;
+        return {Entity}DetailView({entity}Id: id);
+      },
+    ),
+    
+    // Edit view (full screen, not modal)
+    GoRoute(
+      path: '/{entities}/:id/edit',
+      name: 'edit-{entity}',
+      builder: (context, state) {
+        final id = state.pathParameters['id']!;
+        return Edit{Entity}View({entity}Id: id);
+      },
+    ),
+  ],
+);
+```
+
+---
+
+## Responsive Design Breakpoints
+
+```dart
+class Breakpoints {
+  static const double mobile = 600;
+  static const double tablet = 900;
+  static const double desktop = 1200;
+  
+  static bool isMobile(BuildContext context) =>
+      MediaQuery.of(context).size.width < mobile;
+  
+  static bool isTablet(BuildContext context) =>
+      MediaQuery.of(context).size.width >= mobile &&
+      MediaQuery.of(context).size.width < desktop;
+  
+  static bool isDesktop(BuildContext context) =>
+      MediaQuery.of(context).size.width >= desktop;
+}
+
+// Usage in layouts
+if (Breakpoints.isMobile(context)) {
+  // Single column form
+} else if (Breakpoints.isTablet(context)) {
+  // Two column form
+} else {
+  // Wide form with side panels
+}
+```
+
+---
+
+## Accessibility
+
+### Screen Reader Support
+
+```dart
+// Semantic labels for form fields
+TextFormField(
+  decoration: const InputDecoration(labelText: 'Name'),
+  // Screen reader will announce "Name text field"
+)
+
+// Semantic labels for buttons
+Semantics(
+  label: 'Create new agency',
+  child: FloatingActionButton(
+    onPressed: () {},
+    child: const Icon(Icons.add),
+  ),
+)
+```
+
+### Keyboard Navigation
+
+```dart
+// Focus management
+final nameFocusNode = FocusNode();
+final descriptionFocusNode = FocusNode();
+
+TextFormField(
+  focusNode: nameFocusNode,
+  textInputAction: TextInputAction.next,
+  onFieldSubmitted: (_) {
+    FocusScope.of(context).requestFocus(descriptionFocusNode);
+  },
+)
+```
+
+---
+
+## Summary: Key Differences from Modal Pattern
+
+| Aspect | ❌ Modal Popup | ✅ Full-Screen View |
+|--------|---------------|---------------------|
+| Navigation | Dialog/showDialog | context.go() / context.push() |
+| Back button | Dismisses modal | Standard navigation |
+| Deep linking | Not supported | Fully supported |
+| Browser history | Not tracked | Tracked properly |
+| Mobile UX | Poor (cramped) | Excellent (full screen) |
+| Desktop UX | Acceptable | Better (consistent) |
+| Form complexity | Limited space | Unlimited space |
+| Multi-step forms | Difficult | Easy to implement |
+| Accessibility | Limited | Full support |
+| URL sharing | Cannot share | Can share direct links |
+
+---
+
+## Entity-Specific Examples
+
+### Agency CRUD
+- List: `/agencies`
+- Create: `/agencies/create`
+- Detail: `/agencies/{id}`
+- Edit: `/agencies/{id}/edit`
+
+### Work Item CRUD
+- List: `/work-items`
+- Create: `/work-items/create`
+- Detail: `/work-items/{id}`
+- Edit: `/work-items/{id}/edit`
+
+### Role CRUD
+- List: `/roles`
+- Create: `/roles/create`
+- Detail: `/roles/{id}`
+- Edit: `/roles/{id}/edit`
+
+---
+
+## Testing Checklist
+
+- [ ] Form validation works (required fields, format validation)
+- [ ] Error messages display correctly
+- [ ] Loading states show during async operations
+- [ ] Success/error snackbars appear
+- [ ] Unsaved changes warning works
+- [ ] Cancel navigation works
+- [ ] Reset changes functionality works
+- [ ] Delete confirmation dialog works
+- [ ] Responsive layout works (mobile/tablet/desktop)
+- [ ] Keyboard navigation works
+- [ ] Screen reader support works
+- [ ] Deep linking works (can navigate directly to create/edit URLs)
+- [ ] Browser back button works correctly
+- [ ] Form state persists during navigation (if needed)
