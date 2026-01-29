@@ -64,6 +64,9 @@ class AgencyFormViewModel extends StateNotifier<AgencyFormViewModelState> {
       case 'description':
         newFormState = currentState.copyWith(description: value as String);
         break;
+      case 'category':
+        newFormState = currentState.copyWith(category: value as AgencyCategory);
+        break;
       default:
         return;
     }
@@ -114,6 +117,7 @@ class AgencyFormViewModel extends StateNotifier<AgencyFormViewModelState> {
       final agency = await _repository.createAgency(
         name: state.formState.name.trim(),
         description: state.formState.description.trim(),
+        category: state.formState.category.value,
       );
 
       state = state.copyWith(

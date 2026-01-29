@@ -58,6 +58,35 @@ class AgencyForm extends StatelessWidget {
         ),
         const SizedBox(height: 16),
 
+        // Category field
+        DropdownButtonFormField<AgencyCategory>(
+          value: formState.category,
+          decoration: InputDecoration(
+            labelText: 'Category *',
+            helperText: 'Select the primary category for this agency',
+            border: const OutlineInputBorder(),
+            prefixIcon: const Icon(Icons.category),
+          ),
+          items: AgencyCategory.values.map((category) {
+            return DropdownMenuItem(
+              value: category,
+              child: Row(
+                children: [
+                  Text(category.icon, style: const TextStyle(fontSize: 20)),
+                  const SizedBox(width: 8),
+                  Text(category.label),
+                ],
+              ),
+            );
+          }).toList(),
+          onChanged: readOnly ? null : (value) {
+            if (value != null) {
+              onChanged('category', value);
+            }
+          },
+        ),
+        const SizedBox(height: 16),
+
         // Description field
         TextFormField(
           initialValue: formState.description,
