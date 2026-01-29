@@ -14,6 +14,7 @@ import '../views/work_items/work_items_screen.dart';
 import '../views/work_items/work_item_detail_screen.dart';
 import '../views/agency/agency_selection/agency_selection_view.dart';
 import '../views/agency/create_agency/create_agency_view.dart';
+import '../views/agency/agency_designer_view.dart';
 import '../views/agencies/agency_detail_screen.dart';
 import '../views/agents/agents_screen.dart';
 import '../views/agents/agent_detail_screen.dart';
@@ -161,7 +162,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             name: 'agency-designer',
             builder: (context, state) {
               final id = state.pathParameters['id']!;
-              return AgencyDetailScreen(id: id); // Placeholder for designer
+              // Get agency name from extra or use id as fallback
+              final extra = state.extra as Map<String, dynamic>?;
+              final name = extra?['name'] as String? ?? 'Agency';
+              return AgencyDesignerView(agencyId: id, agencyName: name);
             },
           ),
           GoRoute(
