@@ -1,47 +1,26 @@
+import '../../config/app_config.dart';
+
 /// API configuration for CodeVald Fortex application
 ///
 /// Provides centralized configuration for API base URLs, timeouts,
 /// and default headers based on environment settings.
+/// 
+/// Uses AppConfig which loads values from .env files.
 class ApiConfig {
   // Private constructor to prevent instantiation
   ApiConfig._();
 
-  /// Development environment base URL
-  static const String _devBaseUrl = 'http://localhost:8080/api/v1';
+  /// Get base URL from AppConfig (loaded from .env file)
+  static String get baseUrl => AppConfig.apiBaseUrl;
 
-  /// Production environment base URL
-  // ignore: unused_field
-  static const String _prodBaseUrl = 'https://api.codevald.com/api/v1';
-
-  /// Staging environment base URL
-  // ignore: unused_field
-  static const String _stagingBaseUrl =
-      'https://staging-api.codevald.com/api/v1';
-
-  /// Get base URL based on environment
-  ///
-  /// Can be overridden using --dart-define API_BASE_URL
-  /// Defaults to development URL
-  static String get baseUrl {
-    return const String.fromEnvironment(
-      'API_BASE_URL',
-      defaultValue: _devBaseUrl,
-    );
-  }
-
-  /// Get environment name
-  static String get environment {
-    return const String.fromEnvironment(
-      'ENVIRONMENT',
-      defaultValue: 'development',
-    );
-  }
+  /// Get environment name from AppConfig
+  static String get environment => AppConfig.environment;
 
   /// Check if running in development mode
-  static bool get isDevelopment => environment == 'development';
+  static bool get isDevelopment => AppConfig.isDevelopment;
 
   /// Check if running in production mode
-  static bool get isProduction => environment == 'production';
+  static bool get isProduction => AppConfig.isProduction;
 
   /// Check if running in staging mode
   static bool get isStaging => environment == 'staging';

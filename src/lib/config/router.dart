@@ -27,7 +27,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 
   return GoRouter(
     debugLogDiagnostics: true,
-    initialLocation: isAuthenticated ? '/home' : '/sign-in',
+    initialLocation: isAuthenticated ? '/agencies' : '/sign-in',
     refreshListenable: _AuthNotifier(ref),
     redirect: (BuildContext context, GoRouterState state) {
       final location = state.matchedLocation;
@@ -46,10 +46,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         return '/sign-in?redirect=${Uri.encodeComponent(location)}';
       }
 
-      // Redirect to home if accessing auth routes while authenticated
+      // Redirect to agency selection if accessing auth routes while authenticated
       if (isAuthenticated && isAuthRoute) {
         final redirect = state.uri.queryParameters['redirect'];
-        return redirect ?? '/home';
+        return redirect ?? '/agencies';
       }
 
       // Role-based route protection
@@ -61,7 +61,13 @@ final routerProvider = Provider<GoRouter>((ref) {
     },
     errorBuilder: (context, state) => ErrorScreen(error: state.error),
     routes: [
-      GoRoute(path: '/', redirect: (context, state) => '/home'),
+      GoRoute(
+        path: '/',
+        redirect: (context, state) {
+          final isAuth = ref.read(isAuthenticatedProvider);
+          return isAuth ? '/agencies' : '/sign-in';
+        },
+      ),
 
       // Home
       GoRoute(
@@ -195,7 +201,8 @@ final routerProvider = Provider<GoRouter>((ref) {
 bool _canAccessRoute(String location, dynamic user) {
   if (user == null) return false;
 
-  final role = UserRole.fromString(user.role);
+  // Default to 'user' role if not specified
+  final role = UserRole.fromString(user.role ?? 'user');
 
   // Admin can access everything
   if (role == UserRole.admin) return true;

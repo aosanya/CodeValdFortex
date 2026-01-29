@@ -16,8 +16,8 @@ class SignInView extends ConsumerWidget {
     // Listen to auth state changes for navigation
     ref.listen<AuthState>(authProvider, (previous, next) {
       if (next.isAuthenticated) {
-        // Navigate to home on successful login
-        context.go('/home');
+        // Navigate to agency selection after successful login
+        context.go('/agencies');
       }
 
       if (next.errorMessage != null) {
