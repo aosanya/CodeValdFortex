@@ -24,11 +24,16 @@ class Agency {
 
   /// Create from JSON
   factory Agency.fromJson(Map<String, dynamic> json) {
+    // API uses 'state' field, not 'status'
+    final statusValue = json['state'] as String? ?? json['status'] as String?;
+    
     return Agency(
       id: json['id'] as String,
       name: json['name'] as String,
       description: json['description'] as String? ?? '',
-      status: AgencyStatus.fromString(json['status'] as String),
+      status: statusValue != null 
+          ? AgencyStatus.fromString(statusValue)
+          : AgencyStatus.draft,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
       metadata: json['metadata'] as Map<String, dynamic>?,
