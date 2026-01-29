@@ -109,6 +109,34 @@ class AgencyRepository {
     }
   }
 
+  /// Get introduction for an agency
+  Future<Map<String, dynamic>> getIntroduction(String agencyId) async {
+    try {
+      final response = await _dio.get('/agencies/$agencyId/introduction');
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Save introduction for an agency
+  Future<void> saveIntroduction(
+    String agencyId, {
+    required String background,
+    required String purpose,
+    required String scope,
+  }) async {
+    try {
+      await _dio.put('/agencies/$agencyId/introduction', data: {
+        'background': background,
+        'purpose': purpose,
+        'scope': scope,
+      });
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   /// Handle DioException and convert to appropriate error
   Exception _handleError(DioException error) {
     if (error.response != null) {

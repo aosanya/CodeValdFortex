@@ -280,7 +280,7 @@ class AgencyDesignerView extends ConsumerWidget {
   Widget _buildSectionContent(DesignerSection section) {
     switch (section) {
       case DesignerSection.introduction:
-        return const IntroductionSection();
+        return IntroductionSection(agencyId: agencyId);
       case DesignerSection.goals:
         return const GoalsSection();
       case DesignerSection.workItems:
