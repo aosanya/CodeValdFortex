@@ -86,7 +86,7 @@ git branch -d feature/MVP-FL-XXX_description
 
 | Task ID | Title | Description | Status | Priority | Effort | Skills | Dependencies | Details |
 |---------|-------|-------------|--------|----------|--------|--------|--------------|---------|
-| MVP-FL-101 | Agency Selection Homepage | Build homepage UI for listing and selecting agencies. Display agency cards with name, description, status badges (draft/validated/published/active). Implement search/filter, sorting. Navigate to selected agency. Migrated from Cortex MVP-022 | 📋 Not Started | P0 | Medium | Flutter, Material Design | MVP-FL-011 | - |
+| MVP-FL-101 | Agency Selection Homepage | Build homepage UI for listing and selecting agencies. Display agency cards with name, description, status badges (draft/validated/published/active). Implement search/filter, sorting. Navigate to selected agency. Migrated from Cortex MVP-022 | � In Progress | P0 | Medium | Flutter, Material Design | MVP-FL-011 | [mvp-details/MVP-FL-101.md](mvp-details/MVP-FL-101.md) |
 | MVP-FL-102 | Create Agency Form | Implement agency creation form with name field, UUID generation, validation, error handling. Create new agency via POST /api/v1/agencies. Navigate to Agency Designer after creation. Migrated from Cortex MVP-024 | 📋 Not Started | P0 | Low | Flutter, Forms, Validation | MVP-FL-101 | - |
 
 ---
