@@ -185,6 +185,7 @@ class _CreateAgencyViewState extends ConsumerState<CreateAgencyView> {
 
     if (success && context.mounted) {
       final createdId = ref.read(agencyFormViewModelProvider).createdId;
+      final formState = ref.read(agencyFormViewModelProvider).formState;
 
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
@@ -195,9 +196,12 @@ class _CreateAgencyViewState extends ConsumerState<CreateAgencyView> {
         ),
       );
 
-      // Navigate to agency list or detail view
+      // Navigate to agency designer to configure the agency
       if (createdId != null) {
-        context.go('/agencies/$createdId');
+        context.go(
+          '/agencies/$createdId/designer',
+          extra: {'name': formState.name},
+        );
       } else {
         context.go('/agencies');
       }
