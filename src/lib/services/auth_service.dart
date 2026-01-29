@@ -12,7 +12,7 @@ class AuthService {
   Future<AuthResponse> loginWithEmail(EmailLoginCredentials credentials) async {
     try {
       final response = await _dio.post(
-        '/api/v1/auth/login',
+        '/auth/login',
         data: credentials.toJson(),
       );
 
@@ -26,7 +26,7 @@ class AuthService {
   Future<AuthResponse> refreshToken(String refreshToken) async {
     try {
       final response = await _dio.post(
-        '/api/v1/auth/refresh',
+        '/auth/refresh',
         data: {'refresh_token': refreshToken},
       );
 
@@ -39,7 +39,7 @@ class AuthService {
   /// Logout current user
   Future<void> logout() async {
     try {
-      await _dio.post('/api/v1/auth/logout');
+      await _dio.post('/auth/logout');
     } on DioException catch (e) {
       // Ignore logout errors, we'll clear local state anyway
       throw _handleError(e);
@@ -49,7 +49,7 @@ class AuthService {
   /// Get current user info
   Future<AuthUser> getCurrentUser() async {
     try {
-      final response = await _dio.get('/api/v1/auth/me');
+      final response = await _dio.get('/auth/me');
       return AuthUser.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       throw _handleError(e);

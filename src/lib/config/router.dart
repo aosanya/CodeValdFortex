@@ -9,10 +9,12 @@ import '../views/auth/register_screen.dart';
 import '../views/auth/sign_in/sign_in_view.dart';
 import '../views/auth/sign_up/sign_up_view.dart';
 import '../views/unauthorized_screen.dart';
+import '../views/session_expired_screen.dart';
 import '../views/work_items/work_items_screen.dart';
 import '../views/work_items/work_item_detail_screen.dart';
 import '../views/agencies/agencies_screen.dart';
 import '../views/agencies/agency_detail_screen.dart';
+import '../views/agency/agency_selection/agency_selection_view.dart';
 import '../views/agents/agents_screen.dart';
 import '../views/agents/agent_detail_screen.dart';
 import '../views/settings_screen.dart';
@@ -26,7 +28,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 
   return GoRouter(
     debugLogDiagnostics: true,
-    initialLocation: isAuthenticated ? '/home' : '/sign-in',
+    initialLocation: isAuthenticated ? '/agencies' : '/sign-in',
     refreshListenable: _AuthNotifier(ref),
     redirect: (BuildContext context, GoRouterState state) {
       final location = state.matchedLocation;
@@ -40,15 +42,20 @@ final routerProvider = Provider<GoRouter>((ref) {
         return null;
       }
 
+      // Allow session expired page
+      if (location == '/session-expired') {
+        return null;
+      }
+
       // Redirect to sign-in if accessing protected route while not authenticated
       if (!isAuthenticated && !isAuthRoute && location != '/') {
         return '/sign-in?redirect=${Uri.encodeComponent(location)}';
       }
 
-      // Redirect to home if accessing auth routes while authenticated
+      // Redirect to agency selection if accessing auth routes while authenticated
       if (isAuthenticated && isAuthRoute) {
         final redirect = state.uri.queryParameters['redirect'];
-        return redirect ?? '/home';
+        return redirect ?? '/agencies';
       }
 
       // Role-based route protection
@@ -60,7 +67,13 @@ final routerProvider = Provider<GoRouter>((ref) {
     },
     errorBuilder: (context, state) => ErrorScreen(error: state.error),
     routes: [
-      GoRoute(path: '/', redirect: (context, state) => '/home'),
+      GoRoute(
+        path: '/',
+        redirect: (context, state) {
+          final isAuth = ref.read(isAuthenticatedProvider);
+          return isAuth ? '/agencies' : '/sign-in';
+        },
+      ),
 
       // Home
       GoRoute(
@@ -79,6 +92,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/sign-up',
         name: 'sign-up',
         builder: (context, state) => const SignUpView(),
+      ),
+
+      // Session Expired
+      GoRoute(
+        path: '/session-expired',
+        name: 'session-expired',
+        builder: (context, state) => const SessionExpiredScreen(),
       ),
 
       // Legacy Authentication Routes (can be deprecated later)
@@ -125,12 +145,26 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
 
-      // Agencies
+      // Agencies - New MVP-FL-101 implementation
       GoRoute(
         path: '/agencies',
         name: 'agencies',
-        builder: (context, state) => const AgenciesScreen(),
+        builder: (context, state) => const AgencySelectionView(),
         routes: [
+          GoRoute(
+            path: 'create',
+            name: 'agency-create',
+            builder: (context, state) =>
+                const AgenciesScreen(), // Placeholder for create form
+          ),
+          GoRoute(
+            path: ':id/designer',
+            name: 'agency-designer',
+            builder: (context, state) {
+              final id = state.pathParameters['id']!;
+              return AgencyDetailScreen(id: id); // Placeholder for designer
+            },
+          ),
           GoRoute(
             path: ':id',
             name: 'agency-detail',
@@ -180,7 +214,8 @@ final routerProvider = Provider<GoRouter>((ref) {
 bool _canAccessRoute(String location, dynamic user) {
   if (user == null) return false;
 
-  final role = UserRole.fromString(user.role);
+  // Default to 'user' role if not specified
+  final role = UserRole.fromString(user.role ?? 'user');
 
   // Admin can access everything
   if (role == UserRole.admin) return true;
