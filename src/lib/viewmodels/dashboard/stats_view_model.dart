@@ -97,21 +97,4 @@ class StatsViewModel extends BaseViewModel<StatsState> {
       setState(StatsState.success(updatedStats));
     }
   }
-
-  StatsState _createLoadingState() {
-    return StatsState.loading(data: state.data);
-  }
-
-  StatsState _createErrorState(dynamic error, StackTrace stackTrace) {
-    String message = 'An error occurred while loading statistics';
-    if (error is Exception) {
-      message = error.toString().replaceFirst('Exception: ', '');
-    }
-
-    return StatsState.error(message, error: error, data: state.data);
-  }
-
-  StatsState _createInitialState() {
-    return StatsState.initial();
-  }
 }

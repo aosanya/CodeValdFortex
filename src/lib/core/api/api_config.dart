@@ -4,7 +4,7 @@ import '../../config/app_config.dart';
 ///
 /// Provides centralized configuration for API base URLs, timeouts,
 /// and default headers based on environment settings.
-/// 
+///
 /// Uses AppConfig which loads values from .env files.
 class ApiConfig {
   // Private constructor to prevent instantiation

@@ -72,21 +72,4 @@ class DashboardViewModel extends BaseViewModel<DashboardState> {
       setState(DashboardState.success(updatedData));
     }
   }
-
-  DashboardState _createLoadingState() {
-    return DashboardState.loading(data: state.data);
-  }
-
-  DashboardState _createErrorState(dynamic error, StackTrace stackTrace) {
-    String message = 'An error occurred while loading dashboard data';
-    if (error is Exception) {
-      message = error.toString().replaceFirst('Exception: ', '');
-    }
-
-    return DashboardState.error(message, error: error, data: state.data);
-  }
-
-  DashboardState _createInitialState() {
-    return DashboardState.initial();
-  }
 }

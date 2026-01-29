@@ -59,21 +59,21 @@ class _CodeValdFortexAppState extends ConsumerState<CodeValdFortexApp> {
   @override
   void initState() {
     super.initState();
-    
+
     // Listen to auth events and handle session expiry
     authEventNotifier.events.listen((event) async {
       // Prevent handling multiple events simultaneously
       if (_isHandlingAuthEvent) return;
-      
-      if (event == AuthEvent.tokenMissing || 
+
+      if (event == AuthEvent.tokenMissing ||
           event == AuthEvent.tokenRefreshFailed) {
         _isHandlingAuthEvent = true;
         authEventNotifier.setHandling(true);
-        
+
         try {
           // Logout user and clear all tokens
           await ref.read(authProvider.notifier).logout();
-          
+
           // Navigate to session expired screen
           if (_router != null && mounted) {
             _router!.go('/session-expired');

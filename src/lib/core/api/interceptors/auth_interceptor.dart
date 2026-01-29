@@ -37,11 +37,12 @@ class AuthInterceptor extends Interceptor {
       } else {
         // Check if this is an auth-related endpoint that doesn't need a token
         final path = options.path.toLowerCase();
-        final isAuthEndpoint = path.contains('/auth/login') || 
-                               path.contains('/auth/register') ||
-                               path.contains('/sign-in') ||
-                               path.contains('/sign-up');
-        
+        final isAuthEndpoint =
+            path.contains('/auth/login') ||
+            path.contains('/auth/register') ||
+            path.contains('/sign-in') ||
+            path.contains('/sign-up');
+
         // Only emit event if not an auth endpoint
         if (!isAuthEndpoint) {
           authEventNotifier.emit(AuthEvent.tokenMissing);

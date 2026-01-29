@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../config/router.dart';
 
 /// Login screen (placeholder for MVP-FL-010)
 class LoginScreen extends ConsumerStatefulWidget {

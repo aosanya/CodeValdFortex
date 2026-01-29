@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../core/auth/auth_event_notifier.dart';
 
 /// Brief notification screen shown when session expires
-/// 
+///
 /// Displays a message for 2 seconds before redirecting to login
 class SessionExpiredScreen extends StatefulWidget {
   const SessionExpiredScreen({
@@ -21,7 +21,7 @@ class _SessionExpiredScreenState extends State<SessionExpiredScreen> {
   @override
   void initState() {
     super.initState();
-    
+
     // Redirect to login after brief delay
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
@@ -35,7 +35,7 @@ class _SessionExpiredScreenState extends State<SessionExpiredScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       body: Center(

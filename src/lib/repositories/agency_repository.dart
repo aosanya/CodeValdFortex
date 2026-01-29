@@ -48,12 +48,8 @@ class AgencyRepository {
           .map((json) => Agency.fromJson(json as Map<String, dynamic>))
           .toList();
     } on DioException catch (e) {
-      debugPrint('❌ DioException: ${e.type} - ${e.message}');
-      debugPrint('❌ Response: ${e.response?.data}');
       throw _handleError(e);
-    } catch (e, stackTrace) {
-      debugPrint('❌ Unexpected error: $e');
-      debugPrint('❌ Stack trace: $stackTrace');
+    } catch (e) {
       rethrow;
     }
   }
