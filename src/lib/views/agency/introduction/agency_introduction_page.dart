@@ -7,6 +7,9 @@ import '../../widgets/introduction/text_section_widget.dart';
 import '../../widgets/introduction/list_section_widget.dart';
 import '../../widgets/introduction/nested_section_widget.dart';
 import '../../widgets/introduction/table_section_widget.dart';
+import 'dialogs/template_selector_dialog.dart';
+import 'dialogs/ai_generate_dialog.dart';
+import 'dialogs/ai_refine_section_dialog.dart';
 
 /// Main page for managing agency introductions
 class AgencyIntroductionPage extends ConsumerStatefulWidget {
@@ -315,19 +318,18 @@ class _AgencyIntroductionPageState
 
   // Action methods
   void _showTemplateSelector(BuildContext context) {
-    // TODO: Implement template selector dialog
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Template selector - Coming soon'),
-      ),
+    showDialog(
+      context: context,
+      builder: (context) => TemplateSelectorDialog(agencyId: widget.agencyId),
     );
   }
 
   void _showAIGenerateDialog(BuildContext context) {
-    // TODO: Implement AI generation dialog
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('AI generation dialog - Coming soon'),
+    showDialog(
+      context: context,
+      builder: (context) => AIGenerateDialog(
+        agencyId: widget.agencyId,
+        agencyName: widget.agencyName,
       ),
     );
   }
@@ -336,16 +338,18 @@ class _AgencyIntroductionPageState
     // TODO: Implement add section dialog
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Add section dialog - Coming soon'),
+        content: Text('Manual section creation - Coming soon'),
       ),
     );
   }
 
   void _editSection(BuildContext context, IntroductionSection section) {
-    // TODO: Implement edit section dialog with AI refinement option
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Edit section: ${section.title} - Coming soon'),
+    showDialog(
+      context: context,
+      builder: (context) => AIRefineSectionDialog(
+        agencyId: widget.agencyId,
+        agencyName: widget.agencyName,
+        section: section,
       ),
     );
   }
