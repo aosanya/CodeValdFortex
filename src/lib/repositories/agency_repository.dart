@@ -110,10 +110,17 @@ class AgencyRepository {
   }
 
   /// Get introduction for an agency
-  Future<Map<String, dynamic>> getIntroduction(String agencyId) async {
+  Future<Map<String, String>> getIntroduction(String agencyId) async {
     try {
-      final response = await _dio.get('/agencies/$agencyId/introduction');
-      return response.data as Map<String, dynamic>;
+      final response = await _dio.get('/agencies/$agencyId/specification/introduction');
+      final spec = response.data['specification'] as Map<String, dynamic>?;
+      final introduction = spec?['introduction'] as Map<String, dynamic>?;
+      
+      // Convert to Map<String, String>
+      if (introduction != null) {
+        return introduction.map((key, value) => MapEntry(key, value.toString()));
+      }
+      return {};
     } on DioException catch (e) {
       throw _handleError(e);
     }
@@ -121,16 +128,13 @@ class AgencyRepository {
 
   /// Save introduction for an agency
   Future<void> saveIntroduction(
-    String agencyId, {
-    required String background,
-    required String purpose,
-    required String scope,
-  }) async {
+    String agencyId,
+    Map<String, String> introductionData,
+  ) async {
     try {
-      await _dio.put('/agencies/$agencyId/introduction', data: {
-        'background': background,
-        'purpose': purpose,
-        'scope': scope,
+      await _dio.put('/agencies/$agencyId/specification/introduction', data: {
+        'introduction': introductionData,
+        'updated_by': 'user', // TODO: Get from auth context
       });
     } on DioException catch (e) {
       throw _handleError(e);

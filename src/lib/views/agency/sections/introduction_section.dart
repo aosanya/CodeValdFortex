@@ -32,71 +32,174 @@ class IntroductionSection extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Define your agency\'s background, purpose, and scope',
+            'Define flexible introduction data points for your agency. Each field can hold up to 1000 characters.',
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
           ),
           const SizedBox(height: 32),
 
-          // Background field
-          _RichTextFieldWithCounter(
-            label: 'Background',
-            hint: 'Describe the context and history that led to this agency\'s creation...',
-            value: state.background,
-            onChanged: viewModel.updateBackground,
-            onFocusLost: viewModel.onFocusLost,
-            maxLength: IntroductionState.backgroundLimit,
-            minLength: IntroductionState.backgroundMin,
-            errorText: state.validationErrors['background'],
-            minLines: 5,
-            maxLines: 10,
-          ),
-          const SizedBox(height: 24),
+          // Dynamic fields
+          ...state.fields.asMap().entries.map((entry) {
+            final index = entry.key;
+            final field = entry.value;
+            
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 24),
+              child: _buildDynamicField(
+                context,
+                viewModel,
+                state,
+                field,
+                index,
+              ),
+            );
+          }),
 
-          // Purpose field
-          _RichTextFieldWithCounter(
-            label: 'Purpose',
-            hint: 'Explain why this agency exists and what impact it should have...',
-            value: state.purpose,
-            onChanged: viewModel.updatePurpose,
-            onFocusLost: viewModel.onFocusLost,
-            maxLength: IntroductionState.purposeLimit,
-            minLength: IntroductionState.purposeMin,
-            errorText: state.validationErrors['purpose'],
-            minLines: 4,
-            maxLines: 8,
-          ),
-          const SizedBox(height: 24),
-
-          // Scope field
-          _RichTextFieldWithCounter(
-            label: 'Scope',
-            hint: 'Define the boundaries, focus areas, and what is included or excluded...',
-            value: state.scope,
-            onChanged: viewModel.updateScope,
-            onFocusLost: viewModel.onFocusLost,
-            maxLength: IntroductionState.scopeLimit,
-            minLength: IntroductionState.scopeMin,
-            errorText: state.validationErrors['scope'],
-            minLines: 4,
-            maxLines: 8,
-          ),
-          const SizedBox(height: 32),
-
-          // AI Assist button (placeholder for future)
+          // Add field button
           OutlinedButton.icon(
-            onPressed: null, // Disabled for now
-            icon: const Icon(Icons.auto_awesome),
-            label: const Text('AI Assist'),
+            onPressed: viewModel.addField,
+            icon: const Icon(Icons.add),
+            label: const Text('Add Field'),
           ),
         ],
       ),
     );
   }
 
+  Widget _buildDynamicField(
+    BuildContext context,
+    IntroductionViewModel viewModel,
+    IntroductionState state,
+    IntroductionField field,
+    int index,
+  ) {
+    final labelError = state.validationErrors['field_${field.id}_label'];
+    final contentError = state.validationErrors['field_${field.id}_content'];
+    final charCount = field.content.length;
+    final charLimit = IntroductionState.fieldLimit;
+    final isOverLimit = charCount > charLimit;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Field header with label input and remove button
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: TextEditingController(text: field.label)
+                      ..selection = TextSelection.collapsed(offset: field.label.length),
+                    decoration: InputDecoration(
+                      labelText: 'Field Label',
+                      hintText: 'e.g., Overview, Context, Background',
+                      errorText: labelError,
+                      border: const OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                    onChanged: (value) => viewModel.updateFieldLabel(field.id, value),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // Remove button (only show if more than 1 field)
+                if (state.fields.length > 1)
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline),
+                    onPressed: () => viewModel.removeField(field.id),
+                    tooltip: 'Remove field',
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Content textarea
+            TextField(
+              controller: TextEditingController(text: field.content)
+                ..selection = TextSelection.collapsed(offset: field.content.length),
+              decoration: InputDecoration(
+                labelText: 'Content',
+                hintText: 'Enter content for this field...',
+                errorText: contentError,
+                border: const OutlineInputBorder(),
+                helperText: '$charCount / $charLimit characters',
+                helperStyle: TextStyle(
+                  color: isOverLimit 
+                    ? Theme.of(context).colorScheme.error 
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              maxLines: 6,
+              minLines: 4,
+              maxLength: charLimit,
+              onChanged: (value) => viewModel.updateFieldContent(field.id, value),
+              onTapOutside: (_) => viewModel.onFocusLost(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildSaveIndicator(BuildContext context, IntroductionState state) {
     switch (state.saveStatus) {
+      case SaveStatus.saving:
+        return const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            SizedBox(width: 8),
+            Text('Saving...', style: TextStyle(fontSize: 14)),
+          ],
+        );
+
+      case SaveStatus.saved:
+        final lastSaved = state.lastSavedAt;
+        final timeAgo = lastSaved != null
+            ? _getTimeAgo(DateTime.now().difference(lastSaved))
+            : '';
+
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.check_circle, color: Theme.of(context).colorScheme.primary, size: 16),
+            const SizedBox(width: 8),
+            Text('Saved $timeAgo', style: const TextStyle(fontSize: 14)),
+          ],
+        );
+
+      case SaveStatus.error:
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error, size: 16),
+            const SizedBox(width: 8),
+            const Text('Save failed', style: TextStyle(fontSize: 14)),
+          ],
+        );
+
+      case SaveStatus.idle:
+      default:
+        return const SizedBox.shrink();
+    }
+  }
+
+  String _getTimeAgo(Duration duration) {
+    if (duration.inSeconds < 10) return 'just now';
+    if (duration.inSeconds < 60) return '${duration.inSeconds}s ago';
+    if (duration.inMinutes < 60) return '${duration.inMinutes}m ago';
+    if (duration.inHours < 24) return '${duration.inHours}h ago';
+    return '${duration.inDays}d ago';
+  }
+}
+
       case SaveStatus.saving:
         return Row(
           children: [

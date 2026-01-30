@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
 import '../../models/agency/introduction_state.dart';
 import '../../repositories/agency_repository.dart';
 import '../../providers/agency_provider.dart';
@@ -19,6 +20,7 @@ class IntroductionViewModel extends StateNotifier<IntroductionState> {
   final AgencyRepository repository;
   Timer? _debounceTimer;
   int _saveAttempts = 0;
+  final _uuid = const Uuid();
 
   IntroductionViewModel({
     required this.agencyId,
@@ -31,35 +33,71 @@ class IntroductionViewModel extends StateNotifier<IntroductionState> {
   Future<void> _loadIntroduction() async {
     try {
       final data = await repository.getIntroduction(agencyId);
+      
+      // Convert map to list of fields
+      final fields = data.entries.map((entry) {
+        return IntroductionField(
+          id: _uuid.v4(),
+          label: entry.key,
+          content: entry.value as String,
+        );
+      }).toList();
+
       state = state.copyWith(
-        background: data['background'] ?? '',
-        purpose: data['purpose'] ?? '',
-        scope: data['scope'] ?? '',
+        fields: fields,
         saveStatus: SaveStatus.idle,
       );
     } catch (e) {
-      // If introduction doesn't exist yet, start with empty state
-      state = state.copyWith(saveStatus: SaveStatus.idle);
+      // If introduction doesn't exist yet, start with one empty field
+      state = state.copyWith(
+        fields: [
+          IntroductionField(
+            id: _uuid.v4(),
+            label: 'Overview',
+            content: '',
+          ),
+        ],
+        saveStatus: SaveStatus.idle,
+      );
     }
   }
 
-  /// Update background field
-  void updateBackground(String value) {
-    state = state.copyWith(background: value);
-    _validate();
+  /// Add a new field
+  void addField() {
+    final newField = IntroductionField(
+      id: _uuid.v4(),
+      label: '',
+      content: '',
+    );
+    state = state.copyWith(fields: [...state.fields, newField]);
+  }
+
+  /// Remove a field by ID
+  void removeField(String fieldId) {
+    if (state.fields.length <= 1) return; // Keep at least one field
+    state = state.copyWith(
+      fields: state.fields.where((f) => f.id != fieldId).toList(),
+    );
     _scheduleAutoSave();
   }
 
-  /// Update purpose field
-  void updatePurpose(String value) {
-    state = state.copyWith(purpose: value);
+  /// Update field label
+  void updateFieldLabel(String fieldId, String label) {
+    state = state.copyWith(
+      fields: state.fields.map((f) {
+        return f.id == fieldId ? f.copyWith(label: label) : f;
+      }).toList(),
+    );
     _validate();
-    _scheduleAutoSave();
   }
 
-  /// Update scope field
-  void updateScope(String value) {
-    state = state.copyWith(scope: value);
+  /// Update field content
+  void updateFieldContent(String fieldId, String content) {
+    state = state.copyWith(
+      fields: state.fields.map((f) {
+        return f.id == fieldId ? f.copyWith(content: content) : f;
+      }).toList(),
+    );
     _validate();
     _scheduleAutoSave();
   }
@@ -68,37 +106,17 @@ class IntroductionViewModel extends StateNotifier<IntroductionState> {
   void _validate() {
     final errors = <String, String>{};
 
-    // Background validation
-    if (state.background.isEmpty) {
-      errors['background'] = 'Background is required';
-    } else if (state.background.length < IntroductionState.backgroundMin) {
-      errors['background'] =
-          'Background must be at least ${IntroductionState.backgroundMin} characters';
-    } else if (state.background.length > IntroductionState.backgroundLimit) {
-      errors['background'] =
-          'Background cannot exceed ${IntroductionState.backgroundLimit} characters';
-    }
+    for (var i = 0; i < state.fields.length; i++) {
+      final field = state.fields[i];
+      
+      if (field.label.trim().isEmpty) {
+        errors['field_${field.id}_label'] = 'Label is required';
+      }
 
-    // Purpose validation
-    if (state.purpose.isEmpty) {
-      errors['purpose'] = 'Purpose is required';
-    } else if (state.purpose.length < IntroductionState.purposeMin) {
-      errors['purpose'] =
-          'Purpose must be at least ${IntroductionState.purposeMin} characters';
-    } else if (state.purpose.length > IntroductionState.purposeLimit) {
-      errors['purpose'] =
-          'Purpose cannot exceed ${IntroductionState.purposeLimit} characters';
-    }
-
-    // Scope validation
-    if (state.scope.isEmpty) {
-      errors['scope'] = 'Scope is required';
-    } else if (state.scope.length < IntroductionState.scopeMin) {
-      errors['scope'] =
-          'Scope must be at least ${IntroductionState.scopeMin} characters';
-    } else if (state.scope.length > IntroductionState.scopeLimit) {
-      errors['scope'] =
-          'Scope cannot exceed ${IntroductionState.scopeLimit} characters';
+      if (field.content.length > IntroductionState.fieldLimit) {
+        errors['field_${field.id}_content'] =
+            'Content cannot exceed ${IntroductionState.fieldLimit} characters';
+      }
     }
 
     state = state.copyWith(validationErrors: errors);
@@ -119,12 +137,15 @@ class IntroductionViewModel extends StateNotifier<IntroductionState> {
     state = state.copyWith(saveStatus: SaveStatus.saving);
 
     try {
-      await repository.saveIntroduction(
-        agencyId,
-        background: state.background,
-        purpose: state.purpose,
-        scope: state.scope,
-      );
+      // Convert fields to map
+      final introductionData = <String, String>{};
+      for (final field in state.fields) {
+        if (field.label.trim().isNotEmpty) {
+          introductionData[field.label] = field.content;
+        }
+      }
+
+      await repository.saveIntroduction(agencyId, introductionData);
 
       state = state.copyWith(
         saveStatus: SaveStatus.saved,

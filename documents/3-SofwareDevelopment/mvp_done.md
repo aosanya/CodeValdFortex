@@ -17,10 +17,11 @@ This document tracks all completed MVP tasks. For detailed implementation notes,
 | MVP-FL-101 | Agency Selection Homepage | 2026-01-29 | N/A | Agency listing with card/grid layout, search/filter by status, sorting, responsive design (mobile/tablet/desktop), empty states, API integration with error handling |
 | MVP-FL-102 | Create Agency Form | 2026-01-29 | N/A | Full-screen create form with name/description/category fields, backend-generated UUIDs, real-time validation, unsaved changes warning, help dialog, navigation to agency designer after creation, reusable AgencyForm widget |
 | MVP-FL-103 | Agency Designer Navigation | 2026-01-29 | N/A | Agency Designer shell with responsive navigation (NavigationRail/Tabs/Dropdown), 8 placeholder sections (Introduction, Goals, Work Items, Roles, RACI Matrix, Workflows, Policy, Admin), section completion tracking, save progress mechanism, MVVM with Riverpod |
+| MVP-FL-104 | Introduction Section | 2026-01-29 | N/A | Introduction editor with 3 text fields (Background 2000 chars, Purpose 1000 chars, Scope 1500 chars), character counters with color coding, auto-save debounced at 2s, save on focus loss, save status indicators with timestamp, retry logic (3 attempts), validation with min/max character limits, IntroductionState/ViewModel with Riverpod, API integration |
 
 ---
 
-**Total Completed**: 11 tasks  
-**Total Remaining**: 35 tasks
+**Total Completed**: 12 tasks  
+**Total Remaining**: 34 tasks
 
 *For detailed technical highlights, validation results, and implementation decisions, see the individual coding session documents.*

@@ -1,12 +1,49 @@
 import 'package:flutter/foundation.dart';
 
+/// Represents a single introduction field with label and content
+@immutable
+class IntroductionField {
+  final String id;
+  final String label;
+  final String content;
+
+  const IntroductionField({
+    required this.id,
+    required this.label,
+    required this.content,
+  });
+
+  IntroductionField copyWith({
+    String? id,
+    String? label,
+    String? content,
+  }) {
+    return IntroductionField(
+      id: id ?? this.id,
+      label: label ?? this.label,
+      content: content ?? this.content,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is IntroductionField &&
+        other.id == id &&
+        other.label == label &&
+        other.content == content;
+  }
+
+  @override
+  int get hashCode => Object.hash(id, label, content);
+}
+
 /// State model for the agency introduction section
 @immutable
 class IntroductionState {
   final String agencyId;
-  final String background;
-  final String purpose;
-  final String scope;
+  final List<IntroductionField> fields;
   final SaveStatus saveStatus;
   final DateTime? lastSavedAt;
   final String? errorMessage;
@@ -14,44 +51,31 @@ class IntroductionState {
 
   const IntroductionState({
     required this.agencyId,
-    this.background = '',
-    this.purpose = '',
-    this.scope = '',
+    this.fields = const [],
     this.saveStatus = SaveStatus.idle,
     this.lastSavedAt,
     this.errorMessage,
     this.validationErrors = const {},
   });
 
-  // Character limits
-  static const int backgroundLimit = 2000;
-  static const int purposeLimit = 1000;
-  static const int scopeLimit = 1500;
-
-  // Minimum requirements
-  static const int backgroundMin = 50;
-  static const int purposeMin = 30;
-  static const int scopeMin = 40;
+  // Character limit per field
+  static const int fieldLimit = 1000;
 
   // Computed properties
-  bool get isBackgroundValid =>
-      background.length >= backgroundMin && background.length <= backgroundLimit;
+  bool get isValid {
+    // All fields must have labels and content within limit
+    for (final field in fields) {
+      if (field.label.trim().isEmpty) return false;
+      if (field.content.length > fieldLimit) return false;
+    }
+    return true;
+  }
 
-  bool get isPurposeValid =>
-      purpose.length >= purposeMin && purpose.length <= purposeLimit;
-
-  bool get isScopeValid =>
-      scope.length >= scopeMin && scope.length <= scopeLimit;
-
-  bool get isValid => isBackgroundValid && isPurposeValid && isScopeValid;
-
-  bool get isComplete => isValid && validationErrors.isEmpty;
+  bool get isComplete => isValid && validationErrors.isEmpty && fields.isNotEmpty;
 
   IntroductionState copyWith({
     String? agencyId,
-    String? background,
-    String? purpose,
-    String? scope,
+    List<IntroductionField>? fields,
     SaveStatus? saveStatus,
     DateTime? lastSavedAt,
     String? errorMessage,
@@ -59,9 +83,7 @@ class IntroductionState {
   }) {
     return IntroductionState(
       agencyId: agencyId ?? this.agencyId,
-      background: background ?? this.background,
-      purpose: purpose ?? this.purpose,
-      scope: scope ?? this.scope,
+      fields: fields ?? this.fields,
       saveStatus: saveStatus ?? this.saveStatus,
       lastSavedAt: lastSavedAt ?? this.lastSavedAt,
       errorMessage: errorMessage ?? this.errorMessage,
@@ -75,9 +97,7 @@ class IntroductionState {
 
     return other is IntroductionState &&
         other.agencyId == agencyId &&
-        other.background == background &&
-        other.purpose == purpose &&
-        other.scope == scope &&
+        listEquals(other.fields, fields) &&
         other.saveStatus == saveStatus &&
         other.lastSavedAt == lastSavedAt &&
         other.errorMessage == errorMessage &&
@@ -88,13 +108,11 @@ class IntroductionState {
   int get hashCode {
     return Object.hash(
       agencyId,
-      background,
-      purpose,
-      scope,
+      Object.hashAll(fields),
       saveStatus,
       lastSavedAt,
       errorMessage,
-      validationErrors,
+      Object.hashAll(validationErrors.entries),
     );
   }
 }
