@@ -6,6 +6,11 @@
 - **Dependencies**: Backend REST APIs from CodeValdCortex, Material Design widgets, state management architecture (Riverpod)
 - **Architecture Alignment**: Structured to match CodeValdCortex domain flow: Agency Selection → Agency Designer → Publishing → Instances → Work Execution → Agents
 
+## Platform Documentation (CodeValdCortex)
+- **Platform Introduction**: [platform-introduction.md](../../../CodeValdCortex/documents/2-SoftwareDesignAndArchitecture/platform-introduction.md) - Complete platform overview
+- **Agency Introduction Schema**: [agency-introduction-schema.md](../../../CodeValdCortex/documents/2-SoftwareDesignAndArchitecture/agency-introduction-schema.md) - Flexible, data-driven introduction architecture
+- **Research Session Summary**: [RESEARCH_SESSION_SUMMARY.md](../../../CodeValdCortex/documents/3-SofwareDevelopment/mvp-details/RESEARCH_SESSION_SUMMARY.md) - Gap analysis and architecture decisions
+
 ## Documentation Structure
 - **High-Level Overview**: This file (`mvp.md`) provides task tables, priorities, dependencies, and brief descriptions
 - **Detailed Specifications**: Each task with detailed requirements is documented in `/documents/3-SofwareDevelopment/mvp-details/{TASK_ID}.md`
@@ -98,8 +103,8 @@ git branch -d feature/MVP-FL-XXX_description
 | Task ID | Title | Description | Status | Priority | Effort | Skills | Dependencies | Details |
 |---------|-------|-------------|--------|----------|--------|--------|--------------|---------|
 | ~~MVP-FL-103~~ | ~~Agency Designer Navigation~~ | ~~Build Agency Designer shell with tab navigation for 8 sections (Introduction, Goals, Work Items, Roles, RACI, Workflows, Policy, Admin). Implement section completion indicators, save progress, responsive layout. Persistent state across navigation~~ | ✅ Completed | P0 | Medium | Flutter, Routing, State Mgmt | ~~MVP-FL-102~~ | [mvp-details/MVP-FL-103.md](mvp-details/MVP-FL-103.md) |
-| ~~MVP-FL-104~~ | ~~Introduction Section~~ | ~~Build introduction editor for agency background, purpose, scope. Rich text editor, auto-save, character limits, validation. Migrated from Cortex MVP-025. AI-powered generation from uploaded documents~~ | ✅ Completed | P0 | Medium | Flutter, Rich Text, Forms | ~~MVP-FL-103~~ | [mvp-details/MVP-FL-104.md](mvp-details/MVP-FL-104.md) |
-| MVP-FL-105 | Goals Section | Implement Goals CRUD with list/create/edit/delete. SMART goal format, tags, prioritization. AI-powered goal generation/refinement from natural language. Migrated from Cortex MVP-029 | 📋 Not Started | P0 | High | Flutter, AI Integration, Forms | MVP-FL-104 | - |
+| MVP-FL-104 | Introduction Section | Build data-driven introduction editor with flexible section types (Text, List, Nested, Table). Template selector (Genesis 6-section, Minimal, Custom). Section CRUD, drag-to-reorder, inline editing. Rich text editor, auto-save, validation per schema. AI-powered generation from uploaded documents. Frontend implementation of MVP-INTRO-001. See agency-introduction-schema.md | 📋 Not Started | P0 | High | Flutter, Rich Text, Forms, State Mgmt | MVP-FL-103 ✅, MVP-INTRO-001 backend complete | [mvp-details/MVP-FL-104.md](mvp-details/MVP-FL-104.md) |
+| MVP-FL-105 | Goals Section | Implement Goals CRUD with list/create/edit/delete. SMART goal format (Specific, Measurable, Achievable, Relevant, Time-bound), goal types (Efficiency, Quality, Innovation, Scalability), success metrics, rationale, work item traceability. AI-powered goal generation/refinement. Data-driven structure similar to introduction schema. Migrated from Cortex MVP-029 | 📋 Not Started | P0 | High | Flutter, AI Integration, Forms | MVP-FL-104 | - |
 | MVP-FL-106 | Work Items Section | Build Work Items CRUD with hierarchical deliverables tree builder (folders/files with AI prompt instructions). Work item code, title, description, tags, goal linking. AI-powered generation. Drag-and-drop tree editing. Migrated from Cortex MVP-030, MVP-043, MVP-054 | 📋 Not Started | P0 | High | Flutter, Tree UI, Drag-Drop | MVP-FL-105 | - |
 
 ---
@@ -110,7 +115,7 @@ git branch -d feature/MVP-FL-XXX_description
 
 | Task ID | Title | Description | Status | Priority | Effort | Skills | Dependencies | Details |
 |---------|-------|-------------|--------|----------|--------|--------|--------------|---------|
-| MVP-FL-107 | Roles Section | Build Roles manager with CRUD operations. Role taxonomy: autonomy levels (L0-L4: Manual→Assisted→Conditional→High Automation→Full Autonomy), capabilities, token budgets, tags categorization. System vs custom roles filtering. AI-powered role generation. Migrated from Cortex MVP-044 | 📋 Not Started | P0 | High | Flutter, Forms, AI Integration | MVP-FL-106 | - |
+| MVP-FL-107 | Roles Section | Build Roles manager with CRUD operations. Role taxonomy: autonomy levels (L0-Manual→L1-Assisted→L2-Conditional→L3-High Automation→L4-Full Autonomy), capability tags, token budgets per role, communication patterns (receives_from, sends_to, collaborates_with), deliverables, work item mappings. System vs custom roles filtering. AI-powered role generation. Data-driven structure following genesis-agency pattern. Migrated from Cortex MVP-044 | 📋 Not Started | P0 | High | Flutter, Forms, AI Integration | MVP-FL-106 | - |
 | MVP-FL-108 | RACI Matrix Section | Implement interactive RACI matrix editor with grid layout. Map work items × roles with RACI assignments (Responsible, Accountable, Consulted, Informed). Modal editing, auto-save, validation. Migrated from Cortex MVP-045 | 📋 Not Started | P0 | High | Flutter, Grid UI, State Mgmt | MVP-FL-107 | - |
 | MVP-FL-109 | Workflows Section | Build Workflow manager with list/create/edit/delete. Visual workflow designer with drag-and-drop: vertical column layout, work item step nodes, parallel/sequential execution, side drop zones. AI-powered workflow generation. Debounced saves (300ms). Migrated from Cortex MVP-051, MVP-052 | 📋 Not Started | P0 | High | Flutter, Drag-Drop, Visual Designer | MVP-FL-108 | - |
 | MVP-FL-110 | AI Policy Section | Implement AI Policy configurator with policy rules definition, budget constraints, approval workflows, compliance frameworks selection (GDPR, SOC2, HIPAA, ISO27001). Policy validation and preview. Migrated from Cortex MVP-048 | 📋 Not Started | P0 | Medium | Flutter, Forms, Policy UI | MVP-FL-109 | - |
