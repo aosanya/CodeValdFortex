@@ -10,6 +10,7 @@ import '../../widgets/introduction/table_section_widget.dart';
 import 'dialogs/template_selector_dialog.dart';
 import 'dialogs/ai_generate_dialog.dart';
 import 'dialogs/ai_refine_section_dialog.dart';
+import 'dialogs/add_section_dialog.dart';
 
 /// Main page for managing agency introductions
 class AgencyIntroductionPage extends ConsumerStatefulWidget {
@@ -193,18 +194,48 @@ class _AgencyIntroductionPageState
       return _buildEmptyState(context);
     }
 
-    return ListView.builder(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(AppTheme.space16),
-      itemCount: sections.length + 1, // +1 for summary card
-      itemBuilder: (context, index) {
-        if (index == 0) {
-          return _buildSummaryCard(context, state);
-        }
-
-        final section = sections[index - 1];
-        return _buildSectionWidget(context, section);
-      },
+      child: Column(
+        children: [
+          // Summary card (not reorderable)
+          _buildSummaryCard(context, state),
+          
+          // Reorderable sections
+          ReorderableListView(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            onReorder: (oldIndex, newIndex) => _handleReorder(oldIndex, newIndex, sections),
+            children: [
+              for (int index = 0; index < sections.length; index++)
+                Container(
+                  key: ValueKey(sections[index].id),
+                  margin: const EdgeInsets.only(bottom: AppTheme.space12),
+                  child: _buildSectionWidget(context, sections[index], index),
+                ),
+            ],
+          ),
+        ],
+      ),
     );
+  }
+
+  Future<void> _handleReorder(int oldIndex, int newIndex, List<IntroductionSection> sections) async {
+    // Adjust index if moving down
+    if (oldIndex < newIndex) {
+      newIndex -= 1;
+    }
+
+    // Create new order list
+    final reorderedSections = List<IntroductionSection>.from(sections);
+    final section = reorderedSections.removeAt(oldIndex);
+    reorderedSections.insert(newIndex, section);
+
+    // Extract section IDs in new order
+    final sectionIds = reorderedSections.map((s) => s.id).toList();
+
+    // Call provider to update order
+    await ref.read(introductionProvider(widget.agencyId).notifier).reorderSections(sectionIds);
   }
 
   Widget _buildSummaryCard(BuildContext context, IntroductionState state) {
@@ -279,33 +310,62 @@ class _AgencyIntroductionPageState
     );
   }
 
-  Widget _buildSectionWidget(BuildContext context, IntroductionSection section) {
+  Widget _buildSectionWidget(BuildContext context, IntroductionSection section, int index) {
+    Widget sectionWidget;
+
     switch (section.type) {
       case SectionType.text:
-        return TextSectionWidget(
+        sectionWidget = TextSectionWidget(
           section: section,
           onEdit: () => _editSection(context, section),
           onDelete: () => _deleteSection(context, section),
         );
+        break;
       case SectionType.list:
-        return ListSectionWidget(
+        sectionWidget = ListSectionWidget(
           section: section,
           onEdit: () => _editSection(context, section),
           onDelete: () => _deleteSection(context, section),
         );
+        break;
       case SectionType.nested:
-        return NestedSectionWidget(
+        sectionWidget = NestedSectionWidget(
           section: section,
           onEdit: () => _editSection(context, section),
           onDelete: () => _deleteSection(context, section),
         );
+        break;
       case SectionType.table:
-        return TableSectionWidget(
+        sectionWidget = TableSectionWidget(
           section: section,
           onEdit: () => _editSection(context, section),
           onDelete: () => _deleteSection(context, section),
         );
+        break;
     }
+
+    // Wrap with drag handle indicator
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Drag handle
+        Padding(
+          padding: const EdgeInsets.only(top: 16, right: 8),
+          child: ReorderableDragStartListener(
+            index: index,
+            child: MouseRegion(
+              cursor: SystemMouseCursors.grab,
+              child: Icon(
+                Icons.drag_indicator,
+                color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
+              ),
+            ),
+          ),
+        ),
+        // Section widget
+        Expanded(child: sectionWidget),
+      ],
+    );
   }
 
   Widget? _buildFAB(BuildContext context, IntroductionState state) {
@@ -335,11 +395,9 @@ class _AgencyIntroductionPageState
   }
 
   void _showAddSectionDialog(BuildContext context) {
-    // TODO: Implement add section dialog
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Manual section creation - Coming soon'),
-      ),
+    showDialog(
+      context: context,
+      builder: (context) => AddSectionDialog(agencyId: widget.agencyId),
     );
   }
 
