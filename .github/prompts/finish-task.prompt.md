@@ -93,13 +93,30 @@ Follow the **mandatory completion process** for MVP tasks:
      | MVP-XX-YYY | Task Name | 2026-01-28 | [Session](coding_sessions/MVP-XX-YYY_task_name.md) | Brief one-sentence summary of what was implemented |
      ```
 
-5. **Remove completed task from active `mvp.md` file**
+5. **Check for mvp.md inconsistencies (MANDATORY)**
+   - **Before updating mvp.md, verify**:
+     - Dependency notation follows convention (~~MVP-XXX~~ ✅ for completed)
+     - Priority labels match section headers (P0 in P0 section, etc.)
+     - Task counts in summary match actual task counts
+     - No orphaned deprecated tasks outside "Deprecated" section
+     - Cross-references to Cortex tasks are accurate (for cleanup dependencies)
+   - **After removing your completed task, verify**:
+     - All dependent tasks now show `~~MVP-YOUR-TASK~~ ✅`
+     - Task count summary updated (subtract 1 from your priority)
+     - Grand total updated
+   - **Check Cortex mvp.md cleanup tasks**:
+     - If your task unblocks Cortex cleanup (e.g., MVP-FL-101 enables MVP-CLEANUP-001)
+     - Update Cortex mvp.md cleanup task dependencies to show completion
+   - **Fix any inconsistencies found**
+   - Document any additional fixes in commit message
+
+6. **Remove completed task from active `mvp.md` file**
    - Strike through the completed MVP-XXX in dependency lists (~~MVP-XXX~~)
 
-6. **Update dependent task references**
-   - Update all tasks that depended on this one to show ~~MVP-XXX~~
+7. **Update dependent task references**
+   - Update all tasks that depended on this one to show ~~MVP-XXX~~ ✅
 
-7. **ALWAYS remove all debug logs before merge (MANDATORY)**
+8. **ALWAYS remove all debug logs before merge (MANDATORY)**
    
    **Frontend JavaScript/TypeScript Logs (PRIMARY)**:
    - Search for and remove all `console.log()`, `console.debug()`, `console.warn()` statements
@@ -271,7 +288,7 @@ Follow the **mandatory completion process** for MVP tasks:
    - **Test the application after removing logs to ensure nothing breaks**
    - This is MANDATORY - no debug logs should remain in merged code
 
-8. **Prepare next task (if applicable)**
+9. **Prepare next task (if applicable)**
    - Identify the next priority task from `mvp.md`
    - Check if `documents/3-SofwareDevelopment/mvp-details/MVP-XXX.md` exists for next task
    - **If details file doesn't exist for next task:**
@@ -306,7 +323,7 @@ Follow the **mandatory completion process** for MVP tasks:
        [Implementation details, architecture decisions]
        ```
 
-9. **Fix all linting issues before merge**
+10. **Fix all linting issues before merge**
    - Run `npm run lint` and fix ALL errors and warnings (must show 0 issues)
    - Run `npm run format` to ensure consistent code formatting with Prettier
    - Run `npm run type-check` or `tsc --noEmit` to verify TypeScript types
@@ -319,7 +336,7 @@ Follow the **mandatory completion process** for MVP tasks:
      - Missing error handling in async functions
      - ESLint rule violations
 
-10. **Merge to main after testing validation**
+11. **Merge to main after testing validation**
    - Ensure all debug logs removed (no console.log/debug/warn)
    - Ensure `npm run lint` shows 0 issues
    - Ensure `npm run format` has been run

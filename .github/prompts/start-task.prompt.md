@@ -13,7 +13,29 @@ Follow the **mandatory task startup process** for project tasks:
    - Verify all dependencies are completed (marked with ✅ Completed)
    - Check task is "📋 Not Started" status
 
-2. **Read detailed specification**
+2. **Check for mvp.md inconsistencies (MANDATORY)**
+   - **Verify dependency notation convention**:
+     - Active dependencies: `MVP-XXX` (plain text)
+     - Completed dependencies: `~~MVP-XXX~~ ✅` (strikethrough + checkmark)
+     - Check if any completed tasks referenced without strikethrough
+   - **Verify priority alignment**:
+     - All tasks in P0 sections must have Priority = P0
+     - All tasks in P1 sections must have Priority = P1
+     - All tasks in P2 sections must have Priority = P2
+   - **Verify task counts**:
+     - Count tasks in each priority section
+     - Compare with summary table at bottom of mvp.md
+     - Update if mismatched
+   - **Verify deprecated tasks**:
+     - Check for tasks with ⚠️ Deprecated status outside "Deprecated" section
+     - Check for active tasks that should be deprecated
+   - **Verify cross-references with Cortex**:
+     - Check cleanup task dependencies (Fortex MVP-FL-XXX in production)
+     - Ensure referenced Cortex tasks exist and have correct status
+   - **Fix any inconsistencies found before starting implementation**
+   - Document any changes made in commit message
+
+3. **Read detailed specification**
    - **Task details in mvp-details/**: Each task has a dedicated file like `mvp-details/MVP-FL-XXX.md`
    - Tasks follow standardized template with overview, requirements, technical specifications, and acceptance criteria
    - Review all requirements, acceptance criteria, and technical specifications
